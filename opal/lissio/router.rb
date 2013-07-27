@@ -17,11 +17,16 @@ class Router
 		@routes   = []
 		@options  = options
 		@location = $document.location
+		@history  = $window.history
 
-		$document.on :hashchange do |event|
-			puts event.inspect
-
-			update
+		if hash?
+			$document.on 'hash:change' do |event|
+				update
+			end
+		else
+			$document.on 'pop:state' do |event|
+				update
+			end
 		end
 
 		yield self if block_given?
@@ -39,7 +44,7 @@ class Router
 				@location.hash.sub(/^#*/, '')
 			end
 		else
-			@location.pathname
+			@location.path
 		end
 	end
 
@@ -57,7 +62,7 @@ class Router
 		if hash?
 			@location.hash = "##{path}"
 		else
-
+			@history.push(path)
 		end
 	end
 

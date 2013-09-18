@@ -30,6 +30,7 @@ class Application < View
 	end
 
 	def start
+		render
 		@router.update
 	end
 end

@@ -28,9 +28,7 @@ class View
 	end
 
 	def self.render(&block)
-		define_method :render do |*args|
-			instance_exec(*args, &block)
-		end
+		define_method :render, &block
 	end
 
 	def self.html(string)
@@ -45,7 +43,7 @@ class View
 
 	attr_accessor :parent
 
-	def initialize(parent)
+	def initialize(parent = nil)
 		@parent = parent
 	end
 
@@ -60,7 +58,7 @@ class View
 		elem  = if elem = self.class.element
 			scope.at(elem)
 		else
-			Element.create tag[:name] || :div
+			DOM::Element.create tag[:name] || :div
 		end
 
 		elem.add_class tag[:class] if tag[:class]

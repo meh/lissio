@@ -14,8 +14,6 @@ require 'ostruct'
 module Lissio
 
 class Application < View
-	element 'body'
-
 	include Singleton
 
 	def self.method_missing(id, *args, &block)
@@ -25,6 +23,8 @@ class Application < View
 	attr_reader :views, :router
 
 	def initialize
+		self.class.element 'body'
+
 		@views  = OpenStruct.new
 		@router = Router.new
 	end

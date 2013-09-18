@@ -13,7 +13,12 @@ require 'browser/dom'
 require 'browser/css'
 require 'browser/http'
 
-require 'lissio/application'
+module Lissio
+	DOM = Browser::DOM
+	CSS = Browser::CSS
+end
+
 require 'lissio/model'
 require 'lissio/router'
 require 'lissio/view'
+require 'lissio/application'

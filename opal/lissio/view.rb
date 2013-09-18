@@ -37,6 +37,10 @@ class View
 		end
 	end
 
+	def self.css(*args, &block)
+		@style = CSS.create(*args, &block)
+	end
+
 	attr_accessor :parent
 
 	def tag_name

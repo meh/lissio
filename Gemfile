@@ -3,4 +3,5 @@ gemspec
 
 gem 'opal', github: 'opal/opal'
 gem 'opal-browser', github: 'opal/opal-browser'
+gem 'parslet', github: 'kschiess/parslet'
 gem 'rake'

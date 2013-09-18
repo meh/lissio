@@ -33,6 +33,12 @@ class View
 		end
 	end
 
+	def self.html(string)
+		render {
+			element.inner_html = string
+		}
+	end
+
 	def self.css(*args, &block)
 		@style = CSS.create(*args, &block)
 	end

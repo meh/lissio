@@ -15,12 +15,8 @@ class View
 		name ? @element = name : @element
 	end
 
-	def self.tag_name(name = nil)
-		name ? @tag_name = name : @tag_name
-	end
-
-	def self.class_name(name = nil)
-		name ? @class_name = name : @class_name
+	def self.tag(options = nil)
+		options ? @tag = options : @tag
 	end
 
 	def self.events
@@ -43,12 +39,12 @@ class View
 
 	attr_accessor :parent
 
-	def tag_name
-		self.class.tag_name || :div
+	def initialize(parent)
+		@parent = parent
 	end
 
-	def class_name
-		self.class.class_name || ""
+	def tag
+		self.class.tag || { name: :div }
 	end
 
 	def element
@@ -58,10 +54,11 @@ class View
 		elem  = if elem = self.class.element
 			scope.at(elem)
 		else
-			Element.create tag_name
+			Element.create tag[:name] || :div
 		end
 
-		elem.add_class class_name unless class_name.empty?
+		elem.add_class tag[:class] if tag[:class]
+		elem[:id] = tag[:id] if tag[:id]
 
 		self.class.events.each {|name, blocks|
 			blocks.each {|selector, block|

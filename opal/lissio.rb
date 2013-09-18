@@ -10,6 +10,7 @@
 
 require 'browser'
 require 'browser/dom'
+require 'browser/css'
 require 'browser/http'
 
 require 'lissio/model'

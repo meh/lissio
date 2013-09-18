@@ -63,7 +63,7 @@ class View
 
 		elem.add_class class_name unless class_name.empty?
 
-		events.each {|name, blocks|
+		self.class.events.each {|name, blocks|
 			blocks.each {|selector, block|
 				elem.on(name, &block)
 			}
@@ -81,7 +81,7 @@ class View
 	def destroy
 		return unless @element
 
-		events.each {|name, blocks|
+		self.class.events.each {|name, blocks|
 			blocks.each {|selector, block|
 				@element.off(block)
 			}

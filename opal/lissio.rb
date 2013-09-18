@@ -13,7 +13,7 @@ require 'browser/dom'
 require 'browser/css'
 require 'browser/http'
 
+require 'lissio/application'
 require 'lissio/model'
 require 'lissio/router'
 require 'lissio/view'
-require 'lissio/application'

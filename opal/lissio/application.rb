@@ -13,7 +13,7 @@ require 'ostruct'
 
 module Lissio
 
-class Application < View
+class Application < Component
 	include Singleton
 
 	def self.method_missing(id, *args, &block)

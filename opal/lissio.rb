@@ -20,5 +20,5 @@ end
 
 require 'lissio/model'
 require 'lissio/router'
-require 'lissio/view'
+require 'lissio/component'
 require 'lissio/application'

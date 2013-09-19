@@ -10,7 +10,7 @@
 
 module Lissio
 
-class View
+class Component
 	def self.element(name = nil)
 		name ? @element = name : @element
 	end

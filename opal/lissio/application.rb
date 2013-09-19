@@ -9,7 +9,6 @@
 #++
 
 require 'singleton'
-require 'ostruct'
 
 module Lissio
 
@@ -20,12 +19,11 @@ class Application < Component
 		instance.__send__ id, *args, &block
 	end
 
-	attr_reader :views, :router
+	attr_reader :router
 
 	def initialize
 		self.class.element 'body'
 
-		@views  = OpenStruct.new
 		@router = Router.new
 	end
 

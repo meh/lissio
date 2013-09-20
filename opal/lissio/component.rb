@@ -34,7 +34,11 @@ class Component
 	end
 
 	def self.render(&block)
-		define_method :render, &block
+		define_method :render do
+			instance_exec(&block)
+
+			super
+		end
 	end
 
 	def self.html(string = nil, &block)
@@ -80,9 +84,7 @@ class Component
 		self.class.events.each {|name, blocks|
 			blocks.each {|selector, block|
 				if block.is_a? Symbol
-					elem.on(name, selector) {|*args|
-						__send__ name, *args
-					}
+					elem.on(name, selector, &method(block))
 				else
 					elem.on(name, selector, &block)
 				end
@@ -92,7 +94,25 @@ class Component
 		@element = elem
 	end
 
-	def render(*); end
+	def on(name, selector = nil, method = nil, &block)
+		self.class.on(name, selector, method, &block)
+
+		if @element
+			if block
+				@element.on(name, selector, &block)
+			elsif method
+				@element.on(name, selector, &method(method))
+			else
+				@element.on(name, &method(method))
+			end
+		end
+
+		self
+	end
+
+	def render(*)
+		@element.trigger :render, self
+	end
 
 	def remove
 		@element.remove if @element

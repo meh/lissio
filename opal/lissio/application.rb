@@ -22,7 +22,7 @@ class Application < Component
 	end
 
 	attr_reader :router
-	def_delegators :@router, :route
+	def_delegators :@router, :route, :navigate
 
 	def initialize
 		self.class.element 'body'

@@ -9,17 +9,20 @@
 #++
 
 require 'singleton'
+require 'forwardable'
 
 module Lissio
 
 class Application < Component
 	include Singleton
+	extend Forwardable
 
 	def self.method_missing(id, *args, &block)
 		instance.__send__ id, *args, &block
 	end
 
 	attr_reader :router
+	def_delegators :@router, :route
 
 	def initialize
 		self.class.element 'body'

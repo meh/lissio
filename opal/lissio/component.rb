@@ -23,8 +23,14 @@ class Component
 		@events ||= Hash.new { |h| h[k] = [] }
 	end
 
-	def self.on(name, selector = nil, &block)
-		events[name] << [selector, block]
+	def self.on(name, selector = nil, method = nil, &block)
+		if block
+			events[name] << [selector, block]
+		elsif method
+			events[name] << [selector, method]
+		else
+			events[name] << [nil, method]
+		end
 	end
 
 	def self.render(&block)
@@ -71,9 +77,16 @@ class Component
 		elem.add_class tag[:class] if tag[:class]
 		elem[:id] = tag[:id] if tag[:id]
 
+		@registered = []
 		self.class.events.each {|name, blocks|
 			blocks.each {|selector, block|
-				elem.on(name, &block)
+				@registered.push(if block.is_a? Symbol
+					elem.on(name, selector) {|*args|
+						__send__ name, *args
+					}
+				else
+					elem.on(name, selector, &block)
+				end)
 			}
 		}
 
@@ -89,12 +102,7 @@ class Component
 	def destroy
 		return unless @element
 
-		self.class.events.each {|name, blocks|
-			blocks.each {|selector, block|
-				@element.off(block)
-			}
-		}
-
+		@registered.each(&:off)
 		@element.remove
 	end
 end

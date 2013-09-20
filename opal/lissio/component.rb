@@ -77,16 +77,15 @@ class Component
 		elem.add_class tag[:class] if tag[:class]
 		elem[:id] = tag[:id] if tag[:id]
 
-		@registered = []
 		self.class.events.each {|name, blocks|
 			blocks.each {|selector, block|
-				@registered.push(if block.is_a? Symbol
+				if block.is_a? Symbol
 					elem.on(name, selector) {|*args|
 						__send__ name, *args
 					}
 				else
 					elem.on(name, selector, &block)
-				end)
+				end
 			}
 		}
 
@@ -99,12 +98,7 @@ class Component
 		@element.remove if @element
 	end
 
-	def destroy
-		return unless @element
-
-		@registered.each(&:off)
-		@element.remove
-	end
+	alias destroy remove
 end
 
 end

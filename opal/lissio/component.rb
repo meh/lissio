@@ -20,7 +20,7 @@ class Component
 	end
 
 	def self.events
-		@events ||= Hash.new { |h| h[k] = [] }
+		@events ||= Hash.new { |h, k| h[k] = [] }
 	end
 
 	def self.on(name, selector = nil, method = nil, &block)

@@ -13,23 +13,27 @@ module Lissio
 class Router
 	attr_reader :routes, :options
 
-	def initialize(options = {})
+	def initialize(options = {}, &block)
 		@routes   = []
 		@options  = options
 		@location = $document.location
 		@history  = $window.history
 
 		if hash?
-			$document.on 'hash:change' do |event|
+			$window.on 'hash:change' do
 				update
 			end
 		else
-			$document.on 'pop:state' do |event|
+			$window.on 'pop:state' do
 				update
 			end
 		end
 
-		yield self if block_given?
+		if block.arity == 0
+			instance_exec(&block)
+		else
+			block.call(self)
+		end if block
 	end
 
 	def hash?

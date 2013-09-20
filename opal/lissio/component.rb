@@ -26,11 +26,23 @@ class Component
 	def self.on(name, selector = nil, method = nil, &block)
 		if block
 			events[name] << [selector, block]
+
+			[name, selector, block]
 		elsif method
 			events[name] << [selector, method]
+
+			[name, selector, method]
 		else
 			events[name] << [nil, method]
+
+			[name, nil, method]
 		end
+	end
+
+	def self.off(id)
+		name, selector, block = id
+
+		events[name].delete([selector, block])
 	end
 
 	def self.render(&block)
@@ -55,7 +67,10 @@ class Component
 	end
 
 	def self.css(*args, &block)
+		@style.remove if @style
+
 		@style = CSS(*args, &block)
+		@style.append_to($document.head)
 	end
 
 	attr_accessor :parent

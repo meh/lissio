@@ -31,14 +31,21 @@ class Component
 		define_method :render, &block
 	end
 
-	def self.html(string)
-		render {
-			element.inner_html = string
-		}
+	def self.html(string = nil, &block)
+		if block
+			render {
+				element.clear
+				DOM::Builder.new($document, element, &block)
+			}
+		else
+			render {
+				element.inner_html = string
+			}
+		end
 	end
 
 	def self.css(*args, &block)
-		@style = CSS.create(*args, &block)
+		@style = CSS(*args, &block)
 	end
 
 	attr_accessor :parent

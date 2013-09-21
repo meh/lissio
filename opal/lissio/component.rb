@@ -66,11 +66,15 @@ class Component
 		end
 	end
 
-	def self.css(*args, &block)
-		@style.remove if @style
+	def self.css(content = nil, &block)
+		if content || block
+			@style.remove if @style
 
-		@style = CSS(*args, &block)
-		@style.append_to($document.head)
+			@style = CSS(content, &block)
+			@style.append_to($document.head)
+		else
+			CSS::StyleSheet.new(@style)
+		end
 	end
 
 	attr_accessor :parent

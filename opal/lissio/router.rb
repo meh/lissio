@@ -19,7 +19,7 @@ class Router
 		@location = $document.location
 		@history  = $window.history
 
-		if hash?
+		if fragment?
 			$window.on 'hash:change' do
 				update
 			end
@@ -36,16 +36,16 @@ class Router
 		end if block
 	end
 
-	def hash?
-		@options[:hash] != false || !`window.history.pushState`
+	def fragment?
+		@options[:fragment] != false || !`window.history.pushState`
 	end
 
 	def path
-		if hash?
-			if @location.hash.empty?
+		if fragment?
+			if @location.fragment.empty?
 				"/"
 			else
-				@location.hash.sub(/^#*/, '')
+				@location.fragment.sub(/^#*/, '')
 			end
 		else
 			@location.path
@@ -63,8 +63,8 @@ class Router
 	end
 
 	def navigate(path)
-		if hash?
-			@location.hash = "##{path}"
+		if fragment?
+			@location.fragment = "##{path}"
 		else
 			@history.push(path)
 		end

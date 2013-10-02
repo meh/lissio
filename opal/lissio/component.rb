@@ -105,7 +105,9 @@ class Component
 				if block.is_a? Symbol
 					elem.on(name, selector, &method(block))
 				else
-					elem.on(name, selector, &block)
+					elem.on(name, selector) {|*args|
+						instance_exec(*args, &block)
+					}
 				end
 			}
 		}
@@ -118,7 +120,9 @@ class Component
 
 		if @element
 			if block
-				@element.on(name, selector, &block)
+				@element.on(name, selector) {|*args|
+					instance_exec(*args, &block)
+				}
 			elsif method
 				@element.on(name, selector, &method(method))
 			else

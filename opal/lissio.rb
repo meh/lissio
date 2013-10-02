@@ -9,8 +9,7 @@
 #++
 
 require 'browser'
-require 'browser/dom'
-require 'browser/css'
+require 'browser/history'
 require 'browser/http'
 
 module Lissio

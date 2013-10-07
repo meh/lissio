@@ -37,6 +37,10 @@ class Model
 		}
 	end
 
+	def primary_key
+		instance_variable_get "@#{self.class.primary_key}"
+	end
+
 	def to_json
 		"{#{self.class.attributes.map {|name|
 			"#{name.to_json}:#{instance_variable_get("@#{name}").to_json}"

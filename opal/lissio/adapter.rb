@@ -8,17 +8,14 @@
 #  0. You just DO WHAT THE FUCK YOU WANT TO.
 #++
 
-require 'browser'
-require 'browser/history'
-require 'browser/http'
-
 module Lissio
-	DOM = Browser::DOM
-	CSS = Browser::CSS
+
+class Adapter
+	attr_reader :model
+
+	def initialize(model)
+		@model = model
+	end
 end
 
-require 'lissio/adapter'
-require 'lissio/model'
-require 'lissio/router'
-require 'lissio/component'
-require 'lissio/application'
+end

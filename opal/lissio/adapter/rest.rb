@@ -26,7 +26,7 @@ class REST < Adapter
 	end
 
 	def url
-		"//#{@adapter.domain}#{@adapter.endpoint}"
+		"//#{domain}#{endpoint}"
 	end
 
 	def setup

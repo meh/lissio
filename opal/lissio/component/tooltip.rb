@@ -1,4 +1,4 @@
-module Lissio; module Component
+module Lissio; class Component
 
 class Tooltip < Lissio::Component
 	DEFAULTS = {

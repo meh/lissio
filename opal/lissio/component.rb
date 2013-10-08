@@ -97,7 +97,7 @@ class Component
 			DOM::Element.create tag[:name] || :div
 		end
 
-		elem.add_class tag[:class] if tag[:class]
+		elem.add_class(*tag[:class]) if tag[:class]
 		elem[:id] = tag[:id] if tag[:id]
 
 		self.class.events.each {|name, blocks|

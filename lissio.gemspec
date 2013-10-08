@@ -18,7 +18,6 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'opal', '>= 0.4.1'
 	s.add_dependency 'opal-browser'
-	s.add_dependency 'parslet'
 
 	s.add_development_dependency 'opal-spec'
 	s.add_development_dependency 'rake'

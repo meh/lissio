@@ -184,7 +184,7 @@ private
 				color '#fff'
 
 				text align:      :center,
-			     	 decoration: :none
+			       decoration: :none
 
 				background color: '#000'
 				border radius: 4.px
@@ -196,7 +196,7 @@ private
 				height 0
 
 				border color: :transparent,
-			       	 style: :solid
+			         style: :solid
 			end
 
 			rule '&.top .tooltip-arrow' do

@@ -44,7 +44,7 @@ class REST < Adapter
 			end
 
 			def save(&block)
-				Browser::HTTP.put "#{@adapter.url}/#{primary_key}", to_json do |req|
+				Browser::HTTP.put "#{@adapter.url}/#{id!}", to_json do |req|
 					req.on :success do |res|
 						block.call(res.status)
 					end
@@ -68,7 +68,7 @@ class REST < Adapter
 			end
 
 			def destroy(&block)
-				Browser::HTTP.delete "#{@adapter.url}/#{primary_key}" do |req|
+				Browser::HTTP.delete "#{@adapter.url}/#{id!}" do |req|
 					req.on :success do |res|
 						block.call(res.status)
 					end

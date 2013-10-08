@@ -13,42 +13,68 @@ require 'json'
 module Lissio
 
 class Model
-	def self.adapter(klass = nil, *args)
-		klass ? @adapter = klass.new(self, *args) : @adapter
-	end
+	class Property
+		attr_reader :name
 
-	def self.primary_key(name = nil)
-		name ? @primary_key = name : @primary_key
-	end
+		def initialize(name, options)
+			@name    = name
+			@primary = options[:primary] || false
+			@as      = options[:as]
+		end
 
-	def self.attributes(*names)
-		if names.empty?
-			@attributes
-		else
-			@attributes = names.each {|name|
-				attr_accessor name
-			}
+		def primary?
+			@primary
+		end
+
+		def new(data)
+			@as ? @as.new(*data) : data
 		end
 	end
 
+	def self.adapter(klass = nil, *args)
+		if klass
+			@adapter = klass.new(self, *args)
+		else
+			@adapter
+		end
+	end
+
+	def self.properties
+		@properties ||= {}
+	end
+
+	def self.property(name, options = {})
+		properties[name] = Property.new(name, options)
+
+		attr_accessor name
+	end
+
 	def initialize(data)
-		self.class.attributes.each {|name|
-			instance_variable_set "@#{name}", data[name]
+		self.class.properties.each {|name, property|
+			instance_variable_set "@#{name}", property.new(data[name])
 		}
 	end
 
-	def primary_key
-		instance_variable_get "@#{self.class.primary_key}"
+	def id!
+		name, _ = self.properties.find {|_, property|
+			property.primary?
+		}
+
+		if name
+			self.id
+		else
+			instance_variable_get "@#{name}"
+		end
 	end
 
 	def to_json
-		"{#{self.class.attributes.map {|name|
+		"{#{self.class.properties.map {|name, _|
 			"#{name.to_json}:#{instance_variable_get("@#{name}").to_json}"
 		}.join(?,)}}"
 	end
 
 	def inspect
-		"#<#{self.class.name}: #{self.class.attributes.map {|name|
+		"#<#{self.class.name}: #{self.class.properties.map {|name, _|
 			"#{name}=#{instance_variable_get("@#{name}").inspect}"
 		}.join(' ')}>"
 	end

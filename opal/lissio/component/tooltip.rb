@@ -37,6 +37,35 @@ class Tooltip < Lissio::Component
 		element.has_class? :in
 	end
 
+	def register(element, trigger)
+		case trigger
+		when :click
+			element.on :click do
+				toggle
+			end
+
+		when :hover
+			element.on 'mouse:over' do
+				show
+			end
+
+			element.on 'mouse:out' do
+				hide
+			end
+
+		when :focus
+			element.on :focus do
+				show
+			end
+
+			element.on :blur do
+				hide
+			end
+		end
+
+		self
+	end
+
 	def show(content = @options[:content])
 		return unless enabled?
 

@@ -97,6 +97,10 @@ class Component
 			DOM::Element.create tag[:name] || :div
 		end
 
+		unless elem
+			raise ArgumentError, 'element not found'
+		end
+
 		elem.add_class(*tag[:class]) if tag[:class]
 		elem[:id] = tag[:id] if tag[:id]
 

@@ -67,6 +67,7 @@ class Router
 			@location.fragment = "##{path}"
 		else
 			@history.push(path)
+			update
 		end
 	end
 

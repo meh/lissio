@@ -49,10 +49,12 @@ class Model
 		attr_accessor name
 	end
 
-	def initialize(data)
-		self.class.properties.each {|name, property|
-			instance_variable_set "@#{name}", property.new(data[name])
-		}
+	def initialize(data = nil)
+		if data
+			self.class.properties.each {|name, property|
+				instance_variable_set "@#{name}", property.new(data[name])
+			}
+		end
 	end
 
 	def id!

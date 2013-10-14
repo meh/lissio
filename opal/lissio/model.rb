@@ -31,9 +31,9 @@ class Model
 		end
 	end
 
-	def self.adapter(klass = nil, *args)
+	def self.adapter(klass = nil, *args, &block)
 		if klass
-			@adapter = klass.new(self, *args)
+			@adapter = klass.new(self, *args, &block)
 		else
 			@adapter
 		end

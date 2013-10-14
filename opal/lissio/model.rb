@@ -27,7 +27,15 @@ class Model
 		end
 
 		def new(data)
-			@as ? @as.new(*data) : data
+			case @as
+			when nil     then data
+			when Array   then Array(data)
+			when String  then data.to_s
+			when Integer then data.to_i
+			when Float   then data.to_f
+			when Time    then Time.parse(data)
+			else              @as.new(*data)
+			end
 		end
 	end
 

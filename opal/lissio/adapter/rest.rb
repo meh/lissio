@@ -16,11 +16,12 @@ module Lissio; class Adapter
 class REST < Adapter
 	attr_accessor :domain, :endpoint
 
-	def initialize(model, options)
+	def initialize(model, options, &block)
 		super(model)
 
 		@domain   = options[:domain] || $document.location.host
 		@endpoint = options[:endpoint] || endpoint_for(model)
+		@block    = block
 
 		setup
 	end
@@ -33,6 +34,8 @@ class REST < Adapter
 		@model.instance_eval {
 			def self.fetch(id, &block)
 				Browser::HTTP.get "#{@adapter.url}/#{id}" do |req|
+					@block.call(req) if block
+
 					req.on :success do |res|
 						block.call(new(res.json))
 					end
@@ -45,6 +48,8 @@ class REST < Adapter
 
 			def save(&block)
 				Browser::HTTP.put "#{@adapter.url}/#{id!}", to_json do |req|
+					@block.call(req) if block
+
 					req.on :success do |res|
 						block.call(res.status)
 					end
@@ -57,6 +62,8 @@ class REST < Adapter
 
 			def create(&block)
 				Browser::HTTP.post @adapter.url, to_json do |req|
+					@block.call(req) if block
+
 					req.on :success do |res|
 						block.call(res.status)
 					end
@@ -69,6 +76,8 @@ class REST < Adapter
 
 			def destroy(&block)
 				Browser::HTTP.delete "#{@adapter.url}/#{id!}" do |req|
+					@block.call(req) if block
+
 					req.on :success do |res|
 						block.call(res.status)
 					end

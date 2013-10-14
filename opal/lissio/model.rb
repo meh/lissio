@@ -47,6 +47,14 @@ class Model
 		end
 	end
 
+	def self.for(klass, *args, &blocj)
+		clone.tap {|c|
+			c.instance_eval {
+				adapter(klass, *args, &block)
+			}
+		}
+	end
+
 	def self.properties
 		@properties ||= {}
 	end

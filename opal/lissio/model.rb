@@ -47,11 +47,13 @@ class Model
 		end
 	end
 
-	def self.for(klass, *args, &blocj)
-		clone.tap {|c|
-			c.instance_eval {
-				adapter(klass, *args, &block)
-			}
+	def self.for(klass, *args, &block)
+		Class.new(self) {
+			adapter(klass, *args, &block)
+
+			def self.properties
+				superclass.properties
+			end
 		}
 	end
 

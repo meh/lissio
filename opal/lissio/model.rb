@@ -39,9 +39,22 @@ class Model
 		end
 	end
 
+	def self.inherited(klass)
+		return if self == Model
+
+		klass.instance_eval {
+			def self.properties
+				superclass.properties.merge @properties
+			end
+		}
+	end
+
 	def self.adapter(klass = nil, *args, &block)
 		if klass
+			@adapter.uninstall if @adapter
+
 			@adapter = klass.new(self, *args, &block)
+			@adapter.install
 		else
 			@adapter
 		end
@@ -50,19 +63,15 @@ class Model
 	def self.for(klass, *args, &block)
 		Class.new(self) {
 			adapter(klass, *args, &block)
-
-			def self.properties
-				superclass.properties
-			end
 		}
 	end
 
 	def self.properties
-		@properties ||= {}
+		@properties
 	end
 
 	def self.property(name, options = {})
-		properties[name] = Property.new(name, options)
+		(@properties ||= {})[name] = Property.new(name, options)
 
 		attr_accessor name
 	end
@@ -73,6 +82,10 @@ class Model
 				instance_variable_set "@#{name}", property.new(data[name])
 			}
 		end
+	end
+
+	def adapter
+		self.class.adapter
 	end
 
 	def id!

@@ -16,6 +16,14 @@ class Adapter
 	def initialize(model)
 		@model = model
 	end
+
+	def install
+		raise NotImplementedError, "install has not been implemented"
+	end
+
+	def uninstall
+		raise NotImplementedError, "uninstall has not been implemented"
+	end
 end
 
 end

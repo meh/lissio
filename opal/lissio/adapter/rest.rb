@@ -14,7 +14,7 @@ require 'browser/http'
 module Lissio; class Adapter
 
 class REST < Adapter
-	attr_accessor :domain, :endpoint
+	attr_accessor :domain, :endpoint, :block
 
 	def initialize(model, options, &block)
 		super(model)
@@ -22,19 +22,17 @@ class REST < Adapter
 		@domain   = options[:domain] || $document.location.host
 		@endpoint = options[:endpoint] || endpoint_for(model)
 		@block    = block
-
-		setup
 	end
 
 	def url
 		"//#{domain}#{endpoint}"
 	end
 
-	def setup
+	def install
 		@model.instance_eval {
 			def self.fetch(id, &block)
-				Browser::HTTP.get "#{@adapter.url}/#{id}" do |req|
-					@block.call(req) if block
+				Browser::HTTP.get "#{adapter.url}/#{id}" do |req|
+					adapter.block.call(req) if adapter.block
 
 					req.on :success do |res|
 						block.call(new(res.json))
@@ -47,8 +45,8 @@ class REST < Adapter
 			end
 
 			def save(&block)
-				Browser::HTTP.put "#{@adapter.url}/#{id!}", to_json do |req|
-					@block.call(req) if block
+				Browser::HTTP.put "#{adapter.url}/#{id!}", to_json do |req|
+					adapter.block.call(req) if adapter.block
 
 					req.on :success do |res|
 						block.call(res.status)
@@ -61,8 +59,8 @@ class REST < Adapter
 			end
 
 			def create(&block)
-				Browser::HTTP.post @adapter.url, to_json do |req|
-					@block.call(req) if block
+				Browser::HTTP.post adapter.url, to_json do |req|
+					adapter.block.call(req) if adapter.block
 
 					req.on :success do |res|
 						block.call(res.status)
@@ -75,8 +73,8 @@ class REST < Adapter
 			end
 
 			def destroy(&block)
-				Browser::HTTP.delete "#{@adapter.url}/#{id!}" do |req|
-					@block.call(req) if block
+				Browser::HTTP.delete "#{adapter.url}/#{id!}" do |req|
+					adapter.block.call(req) if adapter.block
 
 					req.on :success do |res|
 						block.call(res.status)
@@ -87,6 +85,18 @@ class REST < Adapter
 					end
 				end
 			end
+		}
+	end
+
+	def uninstall
+		@model.instance_eval {
+			class << self
+				remove_method :fetch
+			end
+
+			remove_method :save
+			remove_method :create
+			remove_method :destroy
 		}
 	end
 

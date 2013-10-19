@@ -11,6 +11,20 @@
 module Lissio
 
 class Component
+	def self.inherited(klass)
+		return if self == Component
+
+		element = @element
+		tag     = @tag
+		events  = @events
+
+		klass.instance_eval {
+			@element = element if element
+			@tag     = tag if tag
+			@events  = events.clone if events
+		}
+	end
+
 	def self.element(name = nil)
 		name ? @element = name : @element
 	end

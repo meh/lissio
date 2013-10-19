@@ -101,9 +101,8 @@ private
 				@names << name
 			}
 
-
-			pattern = pattern.gsub(NAME, "([^\\/]*)").
-			                  gsub(SPLAT, "(.*?)")
+			pattern = pattern.gsub(NAME, "([^\\/]+)").
+			                  gsub(SPLAT, "(.+?)")
 
 			@regexp = Regexp.new "^#{pattern}$"
 		end

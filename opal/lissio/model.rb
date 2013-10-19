@@ -9,6 +9,7 @@
 #++
 
 require 'json'
+require 'forwardable'
 
 module Lissio
 
@@ -73,41 +74,54 @@ class Model
 	def self.property(name, options = {})
 		(@properties ||= {})[name] = Property.new(name, options)
 
-		attr_accessor name
+		define_method name do
+			instance_variable_get "@#{name}"
+		end
+
+		define_method "#{name}=" do |value|
+			if instance_variable_get("@#{name}") != value
+				@changed << name
+
+				instance_variable_set "@#{name}", value
+			end
+		end
 	end
 
+	extend Forwardable
+	def_delegators :class, :adapter, :properties
+
+	attr_reader :changed
+
 	def initialize(data = nil)
+		@changed = []
+
 		if data
-			self.class.properties.each {|name, property|
+			properties.each {|name, property|
 				instance_variable_set "@#{name}", property.new(data[name])
 			}
 		end
 	end
 
-	def adapter
-		self.class.adapter
+	def changed?
+		not @changed.empty?
 	end
 
 	def id!
-		name, _ = self.properties.find {|_, property|
+		name, _ = properties.find {|_, property|
 			property.primary?
 		}
 
-		if name
-			self.id
-		else
-			instance_variable_get "@#{name}"
-		end
+		instance_variable_get "@#{name || :id}"
 	end
 
 	def to_json
-		"{#{self.class.properties.map {|name, _|
+		"{#{properties.map {|name, _|
 			"#{name.to_json}:#{instance_variable_get("@#{name}").to_json}"
 		}.join(?,)}}"
 	end
 
 	def inspect
-		"#<#{self.class.name}: #{self.class.properties.map {|name, _|
+		"#<#{self.class.name}: #{properties.map {|name, _|
 			"#{name}=#{instance_variable_get("@#{name}").inspect}"
 		}.join(' ')}>"
 	end

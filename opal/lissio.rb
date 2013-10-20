@@ -9,16 +9,17 @@
 #++
 
 require 'browser'
-require 'browser/history'
-require 'browser/http'
 
 module Lissio
 	DOM = Browser::DOM
 	CSS = Browser::CSS
 end
 
-require 'lissio/adapter'
-require 'lissio/model'
 require 'lissio/router'
+
+require 'lissio/model'
+require 'lissio/collection'
+require 'lissio/adapter'
+
 require 'lissio/component'
 require 'lissio/application'

@@ -11,10 +11,28 @@
 module Lissio
 
 class Adapter
-	attr_reader :model
+	attr_reader :for
 
-	def initialize(model)
-		@model = model
+	def initialize(value)
+		if value.ancestors.include?(Model)
+			@collection = false
+			@model      = true
+		elsif value.ancestors.include?(Collection)
+			@collection = true
+			@model      = false
+		else
+			raise ArgumentError, "the passed value isn't a Model or a Collection"
+		end
+
+		@for = value
+	end
+
+	def model?
+		@model
+	end
+
+	def collection?
+		@collection
 	end
 
 	def install

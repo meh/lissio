@@ -90,10 +90,11 @@ class Model
 	extend Forwardable
 	def_delegators :class, :adapter, :properties
 
-	attr_reader :changed
+	attr_reader :fetched_with, :changed
 
-	def initialize(data = nil)
-		@changed = []
+	def initialize(data = nil, *fetched_with)
+		@fetched_with = fetched_with
+		@changed      = []
 
 		if data
 			properties.each {|name, property|
@@ -107,17 +108,33 @@ class Model
 	end
 
 	def id!
-		name, _ = properties.find {|_, property|
-			property.primary?
+		# FIXME: Enumerable#detect
+		name, = properties.find {|property|
+			property.last.primary?
 		}
 
 		instance_variable_get "@#{name || :id}"
 	end
 
+	def to_h
+		Hash[properties.map {|name, _|
+			[name, instance_variable_get("@#{name}")]
+		}]
+	end
+
+	def as_json
+		hash = to_h
+		hash[JSON.create_id] = self.class.name
+
+		hash
+	end
+
 	def to_json
-		"{#{properties.map {|name, _|
-			"#{name.to_json}:#{instance_variable_get("@#{name}").to_json}"
-		}.join(?,)}}"
+		as_json.to_json
+	end
+
+	def self.json_create(data)
+		new(data)
 	end
 
 	def inspect

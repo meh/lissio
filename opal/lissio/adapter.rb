@@ -15,11 +15,9 @@ class Adapter
 
 	def initialize(value)
 		if value.ancestors.include?(Model)
-			@collection = false
-			@model      = true
+			@type = :model
 		elsif value.ancestors.include?(Collection)
-			@collection = true
-			@model      = false
+			@type = :collection
 		else
 			raise ArgumentError, "the passed value isn't a Model or a Collection"
 		end
@@ -28,11 +26,11 @@ class Adapter
 	end
 
 	def model?
-		@model
+		@type == :model
 	end
 
 	def collection?
-		@collection
+		@type == :collection
 	end
 
 	def install

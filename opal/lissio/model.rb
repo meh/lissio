@@ -28,10 +28,12 @@ class Model
 		end
 
 		def new(data)
+			return data if !@as || @as === data
+
 			case
-			when @as == nil     then data
 			when @as == Array   then Array(data)
 			when @as == String  then data.to_s
+			when @as == Symbol  then data.to_sym
 			when @as == Integer then data.to_i
 			when @as == Float   then data.to_f
 			when @as == Time    then Time.parse(data)
@@ -98,7 +100,9 @@ class Model
 
 		if data
 			properties.each {|name, property|
-				instance_variable_set "@#{name}", property.new(data[name])
+				if datum = data[name]
+					instance_variable_set "@#{name}", property.new(datum)
+				end
 			}
 		end
 	end

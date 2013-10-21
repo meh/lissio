@@ -19,6 +19,7 @@ class Model
 
 		def initialize(name, options)
 			@name    = name
+			@default = options[:default]
 			@primary = options[:primary] || false
 			@as      = options[:as]
 		end
@@ -28,6 +29,7 @@ class Model
 		end
 
 		def new(data)
+			return @default if data.nil?
 			return data if !@as || @as === data
 
 			case
@@ -101,9 +103,7 @@ class Model
 
 		if data
 			properties.each {|name, property|
-				if datum = data[name]
-					instance_variable_set "@#{name}", property.new(datum)
-				end
+				instance_variable_set "@#{name}", property.new(data[name])
 			}
 		end
 	end

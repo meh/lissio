@@ -302,7 +302,7 @@ private
 		if args.length == 1
 			options = args.first
 		else
-			options, name = args
+			name, options = args
 		end
 
 		name    ||= "tooltip-custom-#{rand(10000)}"

@@ -98,7 +98,7 @@ class Component
 	end
 
 	def tag
-		self.class.tag || { name: :div }
+		{ name: :div }.merge(self.class.tag || {})
 	end
 
 	def element
@@ -108,7 +108,7 @@ class Component
 		elem  = if elem = self.class.element
 			scope.at(elem)
 		else
-			DOM::Element.create tag[:name] || :div
+			DOM::Element.create tag[:name]
 		end
 
 		unless elem

@@ -13,12 +13,16 @@ require 'browser/storage'
 module Lissio; class Adapter
 
 class Storage < Adapter
-	def initialize(value, options = {})
+	attr_reader :model, :block
+
+	def initialize(value, options = {}, &block)
 		super(value)
 
 		if collection?
 			@model = options[:model] || value.model
 		end
+
+		@block = block
 	end
 
 	def install
@@ -67,7 +71,23 @@ class Storage < Adapter
 				end
 			}
 		else
+			@for.instance_eval {
+				def self.storage
+					$window.storage(adapter.model.name)
+				end
 
+				def storage
+					self.class.storage
+				end
+
+				def self.fetch(*args, &block)
+					block.call new(storage.map {|name, value|
+						if !adapter.block || adapter.block.call(value)
+							value
+						end
+					}.compact)
+				end
+			}
 		end
 	end
 

@@ -34,13 +34,15 @@ class Collection
 
 	extend Forwardable
 	def_delegators :class, :adapter, :model
-	def_delegators :@items, :length, :[], :to_a
+	def_delegators :@items, :empty?, :length, :[], :to_a
 
 	def initialize(data = nil, *fetched_with)
 		@fetched_with = fetched_with
 
 		if data
 			@items = data.map {|datum|
+				next datum if Model === datum
+
 				if block = self.class.parse
 					block.call(datum)
 				else

@@ -31,6 +31,7 @@ class Model
 			return data if !@as || @as === data
 
 			case
+			when @as == Boolean then !!data
 			when @as == Array   then Array(data)
 			when @as == String  then data.to_s
 			when @as == Symbol  then data.to_sym

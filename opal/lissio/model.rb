@@ -28,8 +28,16 @@ class Model
 			@primary
 		end
 
+		def default
+			if Proc === @default && @default.lambda?
+				@default.call
+			else
+				@default
+			end
+		end
+
 		def new(data)
-			return @default if data.nil?
+			return default if data.nil?
 			return data if !@as || @as === data
 
 			case

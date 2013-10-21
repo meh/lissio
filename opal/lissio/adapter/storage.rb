@@ -13,16 +13,45 @@ require 'browser/storage'
 module Lissio; class Adapter
 
 class Storage < Adapter
-	attr_reader :model, :block
-
 	def initialize(value, options = {}, &block)
 		super(value)
 
+		@autoincrement = []
+
 		if collection?
-			@model = options[:model] || value.model
+			@model  = options[:model] || value.model
+			@filter = options[:filter] if options[:filter]
 		end
 
-		@block = block
+		if block.arity == 0
+			instance_exec(&block)
+		else
+			block.call(self)
+		end if block
+	end
+
+	def model(name = nil)
+		name ? @model = name : @model
+	end
+
+	def filter(&block)
+		block ? @filter = block : @filter
+	end
+
+	def autoincrement(field = nil)
+		if field
+			@autoincrement << field
+		else
+			@autoincrement
+		end
+	end
+
+	def autoincrement!(field, storage)
+		storage[[:__autoincrement__, field]] ||= 0
+
+		# FIXME: when it's fixed convert to += 1
+		value = storage[[:__autoincrement__, field]]
+		storage[[:__autoincrement__, field]] = value + 1
 	end
 
 	def install
@@ -41,9 +70,17 @@ class Storage < Adapter
 				end
 
 				def create(&block)
-					if storage[id!]
+					key = id!
+
+					if key && storage[key]
 						block.call(:error) if block
 					else
+						adapter.autoincrement.each {|name|
+							unless __send__ name
+								__send__ "#{name}=", adapter.autoincrement!(name, storage)
+							end
+						}
+
 						storage[id!] = self
 
 						block.call(:ok) if block
@@ -82,7 +119,9 @@ class Storage < Adapter
 
 				def self.fetch(*args, &block)
 					block.call new(storage.map {|name, value|
-						if !adapter.block || adapter.block.call(value)
+						next if Array === name && name.length == 2 && name.first == :__autoincrement__
+
+						if !adapter.filter || adapter.filter.call(value)
 							value
 						end
 					}.compact)
@@ -92,6 +131,28 @@ class Storage < Adapter
 	end
 
 	def uninstall
+		if model?
+			@for.instance_eval {
+				class << self
+					remove_method :storage
+					remove_method :fetch
+				end
+
+				remove_method :storage
+				remove_method :create
+				remove_method :save
+				remove_method :destroy
+			}
+		else
+			@for.instance_eval {
+				class << self
+					remove_method :storage
+					remove_method :fetch
+				end
+
+				remove_method :storage
+			}
+		end
 	end
 end
 

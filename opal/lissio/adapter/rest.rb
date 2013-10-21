@@ -14,36 +14,51 @@ require 'browser/http'
 module Lissio; class Adapter
 
 class REST < Adapter
-	attr_accessor :domain, :endpoint, :block
-
 	def initialize(value, options = {}, &block)
 		super(value)
 
-		@domain   = options[:domain] || $document.location.host
-		@endpoint = options[:endpoint] || endpoint_for(model)
-		@block    = block
+		domain options[:domain] || $document.location.host
+		endpoint options[:endpoint] || endpoint_for(value)
 
-		if String === @endpoint
-			endpoint = @endpoint
+		if block.arity == 0
+			instance_exec(&block)
+		else
+			block.call(self)
+		end if block
+	end
 
-			@endpoint = if model?
-				-> method, instance, id {
+	def domain(value = nil)
+		value ? @domain = value : @domain
+	end
+
+	def endpoint(value = nil, &block)
+		if value
+			if model?
+				endpoint {|method, instance, id|
 					case method
 					when :fetch
-						"#{endpoint}/#{id}"
+						"#{value}/#{id}"
 
 					when :save, :create, :destroy
-						"#{endpoint}/#{instance.id!}"
+						"#{value}/#{instance.id!}"
 					end
 				}
 			else
-				-> method, instance, desc {
+				endpoint {|method, instance, desc|
 					if method == :fetch
-						"#{endpoint}?#{desc.encode_uri}"
+						"#{value}?#{desc.encode_uri}"
 					end
 				}
 			end
+		elsif block
+			@endpoint = block
+		else
+			@endpoint
 		end
+	end
+
+	def http(&block)
+		block ? @http = block : @http
 	end
 
 	def url(method, model, *args)
@@ -63,7 +78,7 @@ class REST < Adapter
 							block.call(res.status)
 						end
 
-						adapter.block.call(req) if adapter.block
+						adapter.http.call(req) if adapter.http
 					end
 				end
 
@@ -77,7 +92,7 @@ class REST < Adapter
 							block.call(res.status) if block
 						end
 
-						adapter.block.call(req) if adapter.block
+						adapter.http.call(req) if adapter.http
 					end
 				end
 
@@ -91,7 +106,7 @@ class REST < Adapter
 							block.call(res.status) if block
 						end
 
-						adapter.block.call(req) if adapter.block
+						adapter.http.call(req) if adapter.http
 					end
 				end
 
@@ -105,7 +120,7 @@ class REST < Adapter
 							block.call(res.status) if block
 						end
 
-						adapter.block.call(req) if adapter.block
+						adapter.http.call(req) if adapter.http
 					end
 				end
 
@@ -122,7 +137,7 @@ class REST < Adapter
 							block.call(res.status) if block
 						end
 
-						adapter.block.call(req) if adapter.block
+						adapter.http.call(req) if adapter.http
 					end
 				end
 			}
@@ -130,8 +145,6 @@ class REST < Adapter
 			@for.instance_eval {
 				def self.fetch(*args, &block)
 					Browser::HTTP.get adapter.url(:fetch, nil, *args) do |req|
-						adapter.block.call(req) if adapter.block
-
 						req.on :success do |res|
 							block.call(new(res.json, *args)) if block
 						end
@@ -139,6 +152,8 @@ class REST < Adapter
 						req.on :failure do |res|
 							block.call(res.status) if block
 						end
+
+						adapter.http.call(req) if adapter.http
 					end
 				end
 
@@ -152,6 +167,8 @@ class REST < Adapter
 						req.on :failure do |res|
 							block.call(res.status)
 						end
+
+						adapter.http.call(req) if adapter.http
 					end
 				end
 			}

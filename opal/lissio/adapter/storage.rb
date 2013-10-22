@@ -9,6 +9,7 @@
 #++
 
 require 'browser/storage'
+require 'browser/immediate'
 
 module Lissio; class Adapter
 
@@ -66,45 +67,53 @@ class Storage < Adapter
 				end
 
 				def self.fetch(id, &block)
-					block.call(storage[id] || :error)
+					proc {
+						block.call(storage[id] || :error)
+					}.defer
 				end
 
 				def create(&block)
-					key = id!
+					proc {
+						key = id!
 
-					if key && storage[key]
-						block.call(:error) if block
-					else
-						adapter.autoincrement.each {|name|
-							unless __send__ name
-								__send__ "#{name}=", adapter.autoincrement!(name, storage)
-							end
-						}
+						if key && storage[key]
+							block.call(:error) if block
+						else
+							adapter.autoincrement.each {|name|
+								unless __send__ name
+									__send__ "#{name}=", adapter.autoincrement!(name, storage)
+								end
+							}
 
-						storage[id!] = self
+							storage[id!] = self
 
-						block.call(:ok) if block
-					end
+							block.call(:ok) if block
+						end
+					}.defer
 				end
 
 				def save(&block)
-					if storage[id!]
-						storage[id!] = self
+					proc {
+						if storage[id!]
+							storage[id!] = self
 
-						block.call(:ok) if block
-					else
-						block.call(:error) if block
-					end
+							block.call(:ok) if block
+						else
+							block.call(:error) if block
+						end
+					}.defer
 				end
 
 				def destroy(&block)
-					if storage[id!]
-						storage.delete(id!)
+					proc {
+						if storage[id!]
+							storage.delete(id!)
 
-						block.call(:ok) if block
-					else
-						block.call(:error) if block
-					end
+							block.call(:ok) if block
+						else
+							block.call(:error) if block
+						end
+					}.defer
 				end
 			}
 		else
@@ -118,13 +127,15 @@ class Storage < Adapter
 				end
 
 				def self.fetch(*args, &block)
-					block.call new(storage.map {|name, value|
-						next if Array === name && name.length == 2 && name.first == :__autoincrement__
+					proc {
+						block.call new(storage.map {|name, value|
+							next if Array === name && name.length == 2 && name.first == :__autoincrement__
 
-						if !adapter.filter || adapter.filter.call(value)
-							value
-						end
-					}.compact)
+							if !adapter.filter || adapter.filter.call(value)
+								value
+							end
+						}.compact)
+					}.defer
 				end
 			}
 		end

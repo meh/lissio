@@ -61,6 +61,10 @@ class Collection
 
 		self
 	end
+
+	def inspect
+		"#<#{self.class.name}: #{@items.inspect}>"
+	end
 end
 
 end

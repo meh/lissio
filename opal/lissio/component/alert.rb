@@ -12,7 +12,7 @@ class Alert < Component
 		element << @message
 	end
 
-	tag class: :message
+	tag class: :alert
 
 	css do
 		rule '.alert' do

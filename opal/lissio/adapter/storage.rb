@@ -49,10 +49,7 @@ class Storage < Adapter
 
 	def autoincrement!(field, storage)
 		storage[[:__autoincrement__, field]] ||= 0
-
-		# FIXME: when it's fixed convert to += 1
-		value = storage[[:__autoincrement__, field]]
-		storage[[:__autoincrement__, field]] = value + 1
+		storage[[:__autoincrement__, field]] += 1
 	end
 
 	def install

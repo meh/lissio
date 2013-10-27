@@ -121,9 +121,8 @@ class Model
 	end
 
 	def id!
-		# FIXME: Enumerable#detect
-		name, = properties.find {|property|
-			property.last.primary?
+		name, = properties.find {|_, property|
+			property.primary?
 		}
 
 		instance_variable_get "@#{name || :id}"

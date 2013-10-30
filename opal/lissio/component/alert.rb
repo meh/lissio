@@ -45,14 +45,18 @@ class Alert < Component
 		options ||= {}
 
 		if self != Alert
-			inherited = self.name.split('::').last.downcase
+			inherited = class_names
 		end
 
 		Class.new(self) {
+			define_singleton_method :class_names do
+				inherited + [name]
+			end
+
 			tag class: [:alert, name, *inherited]
 
 			css do
-				rule ".alert#{".#{inherited}" if inherited}.#{name}" do
+				rule ".alert#{".#{inherited.join('.')}" unless inherited.empty?}.#{name}" do
 					instance_exec(&block) if block
 
 					if value = options[:background] || options[:bg]

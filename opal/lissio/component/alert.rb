@@ -1,6 +1,10 @@
 module Lissio; class Component
 
 class Alert < Component
+	def self.new!(message, options = {})
+		new(message, options.merge({ escape: false }))
+	end
+
 	attr_reader :message, :options
 
 	def initialize(message, options = {})
@@ -9,7 +13,11 @@ class Alert < Component
 	end
 
 	def render
-		element << @message
+		if @options[:escape] == false
+			element.inner_html = @message
+		else
+			element << @message
+		end
 	end
 
 	tag class: :alert

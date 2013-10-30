@@ -70,8 +70,13 @@ class Component
 	def self.html(string = nil, &block)
 		if block
 			render {
-				element.clear
-				DOM::Builder.new($document, element, &block)
+				if block.arity == 1
+					element.inner_dom { |d|
+						instance_exec(d, &block)
+					}
+				else
+					element.inner_dom(&block)
+				end
 			}
 		else
 			render {

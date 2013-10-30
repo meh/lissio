@@ -128,7 +128,7 @@ class Storage < Adapter
 						block.call new(storage.map {|name, value|
 							next if Array === name && name.length == 2 && name.first == :__autoincrement__
 
-							if !adapter.filter || adapter.filter.call(value)
+							if !adapter.filter || adapter.filter.call(value, *args)
 								value
 							end
 						}.compact)

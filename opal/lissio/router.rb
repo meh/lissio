@@ -21,7 +21,7 @@ class Router
 		@location = $document.location
 		@history  = $window.history
 
-		if fragment?
+		@change = if fragment?
 			$window.on 'hash:change' do
 				update
 			end
@@ -40,6 +40,28 @@ class Router
 
 	def fragment?
 		@options[:fragment] != false || !`window.history.pushState`
+	end
+
+	def html5!
+		return unless fragment?
+
+		@options[:fragment] = false
+
+		@change.off
+		@change = $window.on 'pop:state' do
+			update
+		end
+	end
+
+	def fragment!
+		return if fragment?
+
+		@options[:fragment] = true
+
+		@change.off
+		@change = $window.on 'hash:change' do
+			update
+		end
 	end
 
 	def path

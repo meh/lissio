@@ -44,7 +44,9 @@ class Alert < Component
 		name    ||= "alert-custom-#{rand(10000)}"
 		options ||= {}
 
-		if self != Alert
+		if self == Alert
+			inherited = []
+		else
 			inherited = class_names
 		end
 

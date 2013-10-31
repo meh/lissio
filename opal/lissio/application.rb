@@ -32,6 +32,7 @@ class Application < Component
 
 	expose :start
 	expose :navigate
+	expose :@router
 
 	extend Forwardable
 	def_delegators :@router, :navigate, :route

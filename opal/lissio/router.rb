@@ -87,6 +87,10 @@ class Router
 	end
 
 	def navigate(path)
+		if path == self.path
+			return update
+		end
+
 		if fragment?
 			@location.fragment = "##{path}"
 		else

@@ -18,6 +18,8 @@ class Alert < Component
 		else
 			element << @message
 		end
+
+		super
 	end
 
 	tag class: :alert

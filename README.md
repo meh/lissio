@@ -138,7 +138,7 @@ Message.fetch(1) {|msg|
 ```
 
 When you do operations using adapters you'll always have to provide a block
-that will be called, since all operations are synchronous.
+that will be called, since all operations are asynchronous.
 
 The class check is done because the block will be either passed the model or an
 error.

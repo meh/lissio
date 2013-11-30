@@ -1,7 +1,7 @@
 lissio - e vai col lissio
 =========================
-**lissio** is a VCL (Vai Col Lissio) framework for [Opal][1] to implement
-frontends completely on the client side.
+**lissio** is a VCL (Vai Col Lissio) framework for [Opal](http://opalrb.org) to
+implement frontends completely on the client side.
 
 Application
 -----------

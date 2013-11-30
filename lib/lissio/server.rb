@@ -88,7 +88,7 @@ class Server
 				end
 
 				assets.map {|a|
-					%Q{<script src="/assets/#{ a.logical_path }?body=1"></script>}
+					%Q{<script src="/assets/#{a.logical_path}?body=1"></script>}
 				}.join ?\n
 			else
 				"<script src=\"/assets/#{source}.js\"></script>"
@@ -112,8 +112,13 @@ class Server
 		@source_maps
 	end
 
+	def extend(&block)
+		@extend = block
+	end
+
 	def app
-		this = self
+		this  = self
+		block = @extend
 
 		@app ||= Rack::Builder.app do
 			use Rack::ShowExceptions
@@ -130,6 +135,8 @@ class Server
 
 			use Prerenderer, this
 			use Index, this
+
+			instance_exec(&block) if block
 
 			run Rack::Directory.new(this.public)
 		end

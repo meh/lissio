@@ -142,3 +142,40 @@ that will be called, since all operations are asynchronous.
 
 The class check is done because the block will be either passed the model or an
 error.
+
+Server
+------
+**lissio** comes with a server to run and provide the built application, you're
+not forced to use it, but it provides seamless access to the HTML5 history.
+
+This means it always gives you the index when accessing any URL that isn't a
+static file.
+
+In the future it will do prerendering using phantomjs to make **lissio**
+applications indexable and crawlable by search engines, so you might want to
+stick with it.
+
+Following an example on how to run the server.
+
+```ruby
+require 'bundler'
+Bundler.require
+
+run Lissio::Server.new {|s|
+	s.append_path 'app'
+	s.append_path 'css'
+	s.append_path 'js'
+
+	s.index = 'index.html.erb'
+	s.debug = true
+}
+```
+
+The application usually goes in `app/`.
+
+External CSS should go in `css/`, usually you don't need to write CSS at all,
+you should just use the `#css` method in the component.
+
+External JavaScript should go in `js/`, typically compatibility files like
+`json2` and `sizzle` go there, or other libraries you are using that aren't
+Opal libraries.

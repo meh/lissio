@@ -3,6 +3,9 @@ lissio - e vai col lissio
 **lissio** is a VCL (Vai Col Lissio) framework for [Opal](http://opalrb.org) to
 implement frontends completely on the client side.
 
+[Here](http://www.youtube.com/watch?v=7JU5ssyKczw) you can find the best
+musical background while developing **lissio** applications.
+
 Application
 -----------
 Every **lissio** frontend begins with an `Application` singleton.

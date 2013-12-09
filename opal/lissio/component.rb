@@ -157,7 +157,7 @@ class Component
 	end
 
 	def render(*)
-		@element.trigger :render, self
+		element.trigger :render, self
 	end
 
 	def remove

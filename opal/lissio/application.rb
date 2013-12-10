@@ -31,6 +31,7 @@ class Application < Component
 	end
 
 	expose :start
+	expose :refresh
 	expose :navigate
 	expose :@router
 
@@ -44,6 +45,10 @@ class Application < Component
 	def start
 		render
 
+		@router.update
+	end
+
+	def refresh
 		@router.update
 	end
 

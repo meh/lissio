@@ -2,3 +2,4 @@ vendor
 *.gem
 .bundle
 copycat
+notes

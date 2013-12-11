@@ -31,7 +31,7 @@ class Container < Component
 		end
 	end
 
-	def render(*content)
+	def render(*content, &block)
 		content = @content.dup if content.empty?
 		content.compact! # FIXME: when it's fixed
 
@@ -44,6 +44,10 @@ class Container < Component
 				element << (c.render; c.element)
 			end
 		}
+
+		if block
+			element << DOM(&block)
+		end
 
 		super
 	end

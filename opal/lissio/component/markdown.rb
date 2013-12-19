@@ -3,6 +3,10 @@ require 'base64'
 module Lissio; class Component
 
 class Markdown < Component
+	def self.render(string, options = {}, &block)
+		`marked(#{@string.to_n}, #{@options.to_n}, #{@block.to_n})`
+	end
+
 	def initialize(string, options = {}, &block)
 		@string  = string
 		@options = options
@@ -10,7 +14,7 @@ class Markdown < Component
 	end
 
 	def render
-		element.inner_html = `marked(#{@string.to_n}, #{@options.to_n}, #{@block.to_n})`
+		element.inner_html = Markdown.render(@string, @options, @block)
 	end
 end
 

@@ -34,7 +34,7 @@ class REST < Adapter
 	def endpoint(value = nil, &block)
 		if value
 			if model?
-				endpoint {|method, instance, id|
+				@endpoint = proc {|method, instance, id|
 					case method
 					when :fetch
 						"#{value}/#{id}"
@@ -44,7 +44,7 @@ class REST < Adapter
 					end
 				}
 			else
-				endpoint {|method, instance, desc|
+				@endpoint = proc {|method, instance, desc|
 					if method == :fetch
 						"#{value}?#{desc.encode_uri}"
 					end

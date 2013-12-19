@@ -19,6 +19,7 @@ class Router
 		@routes   = []
 		@options  = options
 		@location = $document.location
+		@initial  = @location.uri
 		@history  = $window.history
 
 		@change = if fragment?
@@ -26,7 +27,12 @@ class Router
 				update
 			end
 		else
-			$window.on 'pop:state' do
+			$window.on 'pop:state' do |e|
+				if @initial == @location.uri
+					@initial = nil
+					break
+				end
+
 				update
 			end
 		end

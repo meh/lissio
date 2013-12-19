@@ -48,6 +48,7 @@ class Model
 			when @as == Integer then data.to_i
 			when @as == Float   then data.to_f
 			when @as == Time    then Time.parse(data)
+			when Proc === @as   then @as.call(data)
 			else                     @as.new(*data)
 			end
 		end

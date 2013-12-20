@@ -52,9 +52,43 @@ class Model
 			else                     @as.new(*data)
 			end
 		end
+
+		def define(klass)
+			name = @name
+
+			if Class === @as && @as.ancestors.include?(Model)
+				klass.define_method name do |&block|
+					@as.fetch(instance_variable_get("@#{name}"), &block)
+				end
+
+				klass.define_method "#{name}=" do |value|
+					if instance_variable_get("@#{name}") != value.id!
+						@changed << name
+
+						instance_variable_set "@#{name}", value.id!
+					end
+				end
+			else
+				klass.define_method name do
+					instance_variable_get "@#{name}"
+				end
+
+				klass.define_method "#{name}=" do |value|
+					if instance_variable_get("@#{name}") != value
+						@changed << name
+
+						instance_variable_set "@#{name}", value
+					end
+				end
+			end
+		end
 	end
 
 	def self.inherited(klass)
+		klass.instance_eval {
+			@properties = {}
+		}
+
 		return if self == Model
 
 		klass.instance_eval {
@@ -86,19 +120,10 @@ class Model
 	end
 
 	def self.property(name, options = {})
-		(@properties ||= {})[name] = Property.new(name, options)
-
-		define_method name do
-			instance_variable_get "@#{name}"
-		end
-
-		define_method "#{name}=" do |value|
-			if instance_variable_get("@#{name}") != value
-				@changed << name
-
-				instance_variable_set "@#{name}", value
-			end
-		end
+		# @properties is accessed directly to allow proper inheritance
+		@properties[name] = Property.new(name, options).tap {|property|
+			property.define(self)
+		}
 	end
 
 	extend Forwardable

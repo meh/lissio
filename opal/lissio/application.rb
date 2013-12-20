@@ -53,6 +53,14 @@ class Application < Component
 	end
 
 	element :body
+
+	on :click, 'a[href^="/"]' do |e|
+		unless e.alt? || e.ctrl? || e.meta? || e.shift?
+			e.stop!
+
+			navigate e.target[:href] || e.target.ancestors('a').first[:href]
+		end
+	end
 end
 
 end

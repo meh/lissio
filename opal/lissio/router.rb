@@ -31,6 +31,8 @@ class Router
 				if @initial == @location.uri
 					@initial = nil
 					break
+				else
+					@initial = nil
 				end
 
 				update

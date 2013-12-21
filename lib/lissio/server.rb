@@ -40,15 +40,14 @@ class Server
 	end
 
 	class Index
-		def initialize(app, server)
-			@app    = app
+		def initialize(server)
 			@server = server
 			@path   = server.index
 		end
 
 		def call(env)
 			if env['PATH_INFO'] =~ /\.[^.]+$/
-				@app.call env
+				[404, {"Content-Type" => "text/plain"}, []]
 			else
 				[200, { 'Content-Type' => 'text/html' }, [html]]
 			end
@@ -98,12 +97,11 @@ class Server
 
 	extend Forwardable
 
-	attr_accessor :debug, :index, :main, :public, :source_maps, :sprockets
+	attr_accessor :debug, :index, :main, :static, :source_maps, :sprockets
 	def_delegators :@sprockets, :append_path, :use_gem
 
 	def initialize(options = {}, &block)
 		@sprockets = Opal::Environment.new
-		@public    = '.'
 
 		block.call(self) if block
 	end
@@ -134,11 +132,11 @@ class Server
 			end
 
 			use Prerenderer, this
-			use Index, this
+			use Rack::Static, urls: this.static if this.static
 
 			instance_exec(&block) if block
 
-			run Rack::Directory.new(this.public)
+			run Index.new(this)
 		end
 	end
 

@@ -33,7 +33,9 @@ class REST < Adapter
 
 	def endpoint(value = nil, &block)
 		if value
-			if model?
+			if Proc === value
+				@endpoint = value
+			elsif model?
 				@endpoint = proc {|method, instance, id|
 					case method
 					when :fetch

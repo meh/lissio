@@ -63,15 +63,32 @@ class REST < Adapter
 		block ? @http = block : @http
 	end
 
+	def with(method, model, *args)
+		point = @endpoint.call(method, model, *args)
+
+		if Array === point
+			point[0].to_s.downcase
+		end
+	end
+
 	def url(method, model, *args)
-		"//#{domain}#{@endpoint.call(method, model, *args)}"
+		point = @endpoint.call(method, model, *args)
+
+		if Array === point
+			point = point[1]
+		end
+
+		"//#{domain}#{point}"
 	end
 
 	def install
 		if model?
 			@for.instance_eval {
 				def self.fetch(*args, &block)
-					Browser::HTTP.get adapter.url(:fetch, nil, *args) do |req|
+					with = adapter.with(:fetch, nil, *args) || :get
+					url  = adapter.url(:fetch, nil, *args)
+
+					Browser::HTTP.send(with, url) do |req|
 						req.on :success do |res|
 							block.call(new(res.json, *args))
 						end
@@ -85,7 +102,10 @@ class REST < Adapter
 				end
 
 				def save(&block)
-					Browser::HTTP.put adapter.url(:save, self), to_json do |req|
+					with = adapter.with(:save, self) || :put
+					url  = adapter.url(:save, self)
+
+					Browser::HTTP.send(with, url, to_json) do |req|
 						req.on :success do |res|
 							block.call(res.status) if block
 						end
@@ -99,7 +119,10 @@ class REST < Adapter
 				end
 
 				def create(&block)
-					Browser::HTTP.post adapter.url(:create, self), to_json do |req|
+					with = adapter.with(:create, self) || :post
+					url  = adapter.url(:create, self)
+
+					Browser::HTTP.send(with, url, to_json) do |req|
 						req.on :success do |res|
 							block.call(res.status) if block
 						end
@@ -113,7 +136,10 @@ class REST < Adapter
 				end
 
 				def destroy(&block)
-					Browser::HTTP.delete adapter.url(:destroy, self) do |req|
+					with = adapter.with(:destroy, self) || :delete
+					url  = adapter.url(:destroy, self)
+
+					Browser::HTTP.send(with, url) do |req|
 						req.on :success do |res|
 							block.call(res.status) if block
 						end
@@ -127,9 +153,11 @@ class REST < Adapter
 				end
 
 				def reload(&block)
-					with = fetched_with.empty? ? [id!] : fetched_with
+					fetched = fetched_with.empty? ? [id!] : fetched_with
+					with    = adapter.with(:fetch, self, *fetched) || :get
+					url     = adapter.url(:fetch, self, *fetched)
 
-					Browser::HTTP.get adapter.url(:fetch, self, *with) do |req|
+					Browser::HTTP.send(with, url) do |req|
 						req.on :success do |res|
 							initialize(res.json, *fetched_with)
 							block.call(self) if block
@@ -146,7 +174,10 @@ class REST < Adapter
 		else
 			@for.instance_eval {
 				def self.fetch(*args, &block)
-					Browser::HTTP.get adapter.url(:fetch, nil, *args) do |req|
+					with = adapter.with(:fetch, nil, *args)
+					url  = adapter.url(:fetch, nil, *args)
+
+					Browser::HTTP.send(with, url) do |req|
 						req.on :success do |res|
 							block.call(new(res.json, *args)) if block
 						end
@@ -160,7 +191,10 @@ class REST < Adapter
 				end
 
 				def reload(&block)
-					Browser::HTTP.get adapter.url(:fetch, self, *fetched_with) do |req|
+					with = adapter.with(:fetch, self, *fetched_with) || :get
+					url  = adapter.url(:fetch, self, *fetched_with)
+
+					Browser::HTTP.send(with, url)  do |req|
 						req.on :success do |res|
 							initialize(res.json, *fetched_with)
 							block.call(self)

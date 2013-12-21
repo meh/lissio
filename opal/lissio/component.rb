@@ -169,4 +169,9 @@ class Component
 	alias destroy remove
 end
 
+
+Browser::DOM::Builder.for Component do |_, item|
+	item.render
+end
+
 end

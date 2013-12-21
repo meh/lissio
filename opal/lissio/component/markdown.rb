@@ -15,6 +15,8 @@ class Markdown < Component
 
 	def render
 		element.inner_html = Markdown.render(@string, @options, @block)
+
+		super
 	end
 end
 

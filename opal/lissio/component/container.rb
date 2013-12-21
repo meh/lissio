@@ -41,7 +41,7 @@ class Container < Component
 			if String === c
 				element << c
 			else
-				element << (c.render; c.element)
+				element << c.render
 			end
 		}
 

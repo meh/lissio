@@ -38,7 +38,7 @@ class Model
 
 		def new(data)
 			return default if data.nil?
-			return data if !@as || @as === data
+			return data if !@as || @as === data || @as.ancestors.include?(Model)
 
 			case
 			when @as == Boolean then !!data
@@ -55,10 +55,11 @@ class Model
 
 		def define(klass)
 			name = @name
+			as   = @as
 
 			if Class === @as && @as.ancestors.include?(Model)
 				klass.define_method name do |&block|
-					@as.fetch(instance_variable_get("@#{name}"), &block)
+					as.fetch(instance_variable_get("@#{name}"), &block)
 				end
 
 				klass.define_method "#{name}=" do |value|

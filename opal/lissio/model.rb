@@ -15,7 +15,7 @@ module Lissio
 
 class Model
 	class Property
-		attr_reader :name
+		attr_reader :name, :as
 
 		def initialize(name, options)
 			@name    = name
@@ -38,7 +38,15 @@ class Model
 
 		def new(data)
 			return default if data.nil?
-			return data if !@as || @as === data || @as.ancestors.include?(Model)
+			return data if !@as || @as === data
+
+			if @as.ancestors.include?(Model)
+				if @as.primary.as === data
+					return data
+				else
+					return @as.new(*data)
+				end
+			end
 
 			case
 			when @as == Boolean then !!data
@@ -124,7 +132,15 @@ class Model
 		# @properties is accessed directly to allow proper inheritance
 		@properties[name] = Property.new(name, options).tap {|property|
 			property.define(self)
+
+			if property.primary?
+				@primary = property
+			end
 		}
+	end
+
+	def self.primary
+		@primary
 	end
 
 	extend Forwardable

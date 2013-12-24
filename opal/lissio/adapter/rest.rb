@@ -10,6 +10,7 @@
 
 require 'browser/location'
 require 'browser/http'
+require 'promise'
 
 module Lissio; class Adapter
 
@@ -66,16 +67,16 @@ class REST < Adapter
 	def with(method, model, *args)
 		point = @endpoint.call(method, model, *args)
 
-		if Array === point
-			point[0].to_s.downcase
+		if Hash === point
+			point.first[0].to_s.downcase
 		end
 	end
 
 	def url(method, model, *args)
 		point = @endpoint.call(method, model, *args)
 
-		if Array === point
-			point = point[1]
+		if Hash === point
+			point = point.first[1]
 		end
 
 		"//#{domain}#{point}"
@@ -84,75 +85,88 @@ class REST < Adapter
 	def install
 		if model?
 			@for.instance_eval {
-				def self.fetch(*args, &block)
-					with = adapter.with(:fetch, nil, *args) || :get
-					url  = adapter.url(:fetch, nil, *args)
+				def self.fetch(*args)
+					promise = Promise.new
+					with    = adapter.with(:fetch, nil, *args) || :get
+					url     = adapter.url(:fetch, nil, *args)
 
 					Browser::HTTP.send(with, url) do |req|
 						req.on :success do |res|
-							block.call(new(res.json, *args))
+							promise.resolve(new(res.json, *args))
 						end
 
 						req.on :failure do |res|
-							block.call(res.status)
+							promise.reject(res.status)
 						end
 
 						adapter.http.call(req) if adapter.http
 					end
+
+					promise
 				end
 
-				def save(&block)
-					with = adapter.with(:save, self) || :put
-					url  = adapter.url(:save, self)
+				def save
+					promise = Promise.new
+					with    = adapter.with(:save, self) || :put
+					url     = adapter.url(:save, self)
 
 					Browser::HTTP.send(with, url, to_json) do |req|
 						req.on :success do |res|
-							block.call(res.status) if block
+							promise.resolve(res.status)
 						end
 
 						req.on :failure do |res|
-							block.call(res.status) if block
+							promise.reject(res.status)
 						end
 
 						adapter.http.call(req) if adapter.http
 					end
+
+					promise
 				end
 
-				def create(&block)
-					with = adapter.with(:create, self) || :post
-					url  = adapter.url(:create, self)
+				def create
+					promise = Promise.new
+					with    = adapter.with(:create, self) || :post
+					url     = adapter.url(:create, self)
 
 					Browser::HTTP.send(with, url, to_json) do |req|
 						req.on :success do |res|
-							block.call(res.status) if block
+							promise.resolve(res.status)
 						end
 
 						req.on :failure do |res|
-							block.call(res.status) if block
+							promise.reject(res.status)
 						end
 
 						adapter.http.call(req) if adapter.http
 					end
+
+					promise
 				end
 
-				def destroy(&block)
-					with = adapter.with(:destroy, self) || :delete
-					url  = adapter.url(:destroy, self)
+				def destroy
+					promise = Promise.new
+					with    = adapter.with(:destroy, self) || :delete
+					url     = adapter.url(:destroy, self)
 
 					Browser::HTTP.send(with, url) do |req|
 						req.on :success do |res|
-							block.call(res.status) if block
+							promise.resolve(res.status)
 						end
 
 						req.on :failure do |res|
-							block.call(res.status) if block
+							promise.reject(res.status)
 						end
 
 						adapter.http.call(req) if adapter.http
 					end
+
+					promise
 				end
 
-				def reload(&block)
+				def reload
+					promise = Promise.new
 					fetched = fetched_with.empty? ? [id!] : fetched_with
 					with    = adapter.with(:fetch, self, *fetched) || :get
 					url     = adapter.url(:fetch, self, *fetched)
@@ -160,52 +174,61 @@ class REST < Adapter
 					Browser::HTTP.send(with, url) do |req|
 						req.on :success do |res|
 							initialize(res.json, *fetched_with)
-							block.call(self) if block
+
+							promise.resolve(self)
 						end
 
 						req.on :failure do |res|
-							block.call(res.status) if block
+							promise.reject(res.status)
 						end
 
 						adapter.http.call(req) if adapter.http
 					end
+
+					promise
 				end
 			}
 		else
 			@for.instance_eval {
 				def self.fetch(*args, &block)
-					with = adapter.with(:fetch, nil, *args)
-					url  = adapter.url(:fetch, nil, *args)
+					promise = Promise.new
+					with    = adapter.with(:fetch, nil, *args)
+					url     = adapter.url(:fetch, nil, *args)
 
 					Browser::HTTP.send(with, url) do |req|
 						req.on :success do |res|
-							block.call(new(res.json, *args)) if block
+							promise.resolve(new(res.json, *args))
 						end
 
 						req.on :failure do |res|
-							block.call(res.status) if block
+							promise.reject(res.status)
 						end
 
 						adapter.http.call(req) if adapter.http
 					end
+
+					promise
 				end
 
 				def reload(&block)
-					with = adapter.with(:fetch, self, *fetched_with) || :get
-					url  = adapter.url(:fetch, self, *fetched_with)
+					promise = Promise.new
+					with    = adapter.with(:fetch, self, *fetched_with) || :get
+					url     = adapter.url(:fetch, self, *fetched_with)
 
 					Browser::HTTP.send(with, url)  do |req|
 						req.on :success do |res|
 							initialize(res.json, *fetched_with)
-							block.call(self)
+							promise.resolve(self)
 						end
 
 						req.on :failure do |res|
-							block.call(res.status)
+							promise.reject(res.status)
 						end
 
 						adapter.http.call(req) if adapter.http
 					end
+
+					promise
 				end
 			}
 		end

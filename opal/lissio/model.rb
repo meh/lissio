@@ -66,8 +66,8 @@ class Model
 			as   = @as
 
 			if Class === @as && @as.ancestors.include?(Model)
-				klass.define_method name do |&block|
-					as.fetch(instance_variable_get("@#{name}"), &block)
+				klass.define_method name do
+					as.fetch(instance_variable_get("@#{name}"))
 				end
 
 				klass.define_method "#{name}=" do |value|

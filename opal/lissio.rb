@@ -15,6 +15,7 @@ module Lissio
 	CSS = Browser::CSS
 end
 
+require 'lissio/version'
 require 'lissio/router'
 
 require 'lissio/model'

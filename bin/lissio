@@ -1,0 +1,109 @@
+#! /usr/bin/env ruby
+
+if File.exists?('Gemfile')
+	require 'bundler'
+	Bundler.require
+end
+
+require 'thor'
+require 'rack'
+require 'lissio'
+require 'fileutils'
+
+class CLI < Thor
+	desc "start [OPTIONS]", "start the lissio server"
+
+	option :server, type: :string
+	option :port,   type: :numeric, default: 9001
+	option :host,   type: :string, default: '0.0.0.0'
+	option :use,    type: :array, default: []
+	option :path,   type: :array, default: ['app', 'js']
+	option :static, type: :array, default: ['/css', '/fonts', '/img']
+	option :index,  type: :string
+	option :debug,  type: :boolean
+
+	def start
+		options[:use].each {|u|
+			require u
+		}
+
+		Rack::Server.start(
+			Host: options[:host],
+			Port: options[:port],
+
+			app: Lissio::Server.new {|s|
+				options[:path].each {|path|
+					s.append_path path
+				}
+
+				s.static = options[:static]
+
+				if index = options[:index]
+					s.index = index
+				end
+
+				if options[:debug]
+					s.debug = true
+				end
+			})
+	end
+
+	desc "new [PATH]", "create a new lissio application"
+	def new(path = '.')
+		FileUtils.mkpath path
+		FileUtils.cd path do
+			FileUtils.mkdir 'app'
+			FileUtils.mkdir 'css'
+			FileUtils.mkdir 'js'
+			FileUtils.mkdir 'img'
+			FileUtils.mkdir 'fonts'
+
+			File.open 'index.html.erb', 'w' do |f|
+				f.puts <<-HTML.gsub(/^\t+/, '')
+					<!DOCTYPE html>
+					<html>
+					<head>
+					  <meta charset="utf-8">
+					  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+					  <title>Vai col lissio!</title>
+					
+					  <%= lissio 'app' %>
+					</head>
+					<body>
+					</body>
+					</html>
+				HTML
+			end
+
+			File.open 'app/app.rb', 'w' do |f|
+				f.puts <<-RUBY.gsub(/^\t+/, '')
+					require 'opal'
+					require 'lissio'
+
+					class Application < Lissio::Application
+					  def initialize
+					    super
+
+					    route '/' do
+					      alert "hello"
+					    end
+					  end
+
+					  html do
+					    div "Vai col lissio!"
+					  end
+
+					  css do
+					    rule 'body' do
+					      font size: 42.px
+					      text align: :center
+					    end
+					  end
+					end
+				RUBY
+			end
+		end
+	end
+end
+
+CLI.start(ARGV)

@@ -3,6 +3,7 @@ require 'rack/urlmap'
 require 'rack/builder'
 require 'rack/directory'
 require 'rack/showexceptions'
+
 require 'opal/source_map'
 require 'opal/sprockets/environment'
 
@@ -28,7 +29,7 @@ class Server
 		end
 	end
 
-	class Prerenderer
+	class Prerender
 		def initialize(app, server)
 			@app    = app
 			@server = server
@@ -106,6 +107,16 @@ class Server
 		block.call(self) if block
 	end
 
+	def path=(values)
+		values.each { |path|
+			append_path path
+		}
+	end
+
+	def append_static(path)
+		(@static ||= []) << path
+	end
+
 	def source_maps?
 		@source_maps
 	end
@@ -131,7 +142,7 @@ class Server
 				end
 			end
 
-			use Prerenderer, this
+			use Prerender, this
 			use Rack::Static, urls: this.static if this.static
 
 			instance_exec(&block) if block

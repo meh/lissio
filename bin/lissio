@@ -7,8 +7,10 @@ end
 
 require 'thor'
 require 'rack'
-require 'lissio'
 require 'fileutils'
+
+require 'lissio'
+require 'opal/browser'
 
 class CLI < Thor
 	desc "start [OPTIONS]", "start the lissio server"

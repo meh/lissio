@@ -16,7 +16,10 @@ class Alert < Component
 		if @options[:escape] == false
 			element.inner_html = @message
 		else
-			element << @message
+			@message.each_line {|line|
+				element << line
+				element << DOM { br }
+			}
 		end
 
 		super

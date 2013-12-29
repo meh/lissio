@@ -32,6 +32,8 @@ class Collection
 		block ? @parse = block : @parse
 	end
 
+	include Enumerable
+
 	extend Forwardable
 	def_delegators :class, :adapter, :model
 	def_delegators :@items, :empty?, :length, :[], :to_a
@@ -52,7 +54,11 @@ class Collection
 		end
 	end
 
-	include Enumerable
+	def replace(array)
+		@items = array
+
+		self
+	end
 
 	def each(&block)
 		return enum_for :each unless block

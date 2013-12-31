@@ -18,6 +18,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'opal', '>= 0.5.5'
 	s.add_dependency 'opal-browser'
+	s.add_dependency 'opal-sprockets'
 	s.add_dependency 'rack'
 
 	s.add_development_dependency 'opal-spec'

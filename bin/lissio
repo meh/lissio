@@ -13,13 +13,13 @@ require 'lissio'
 require 'opal/browser'
 
 class CLI < Thor
-	desc "start [OPTIONS]", "start the lissio server"
+	desc "start", "start the lissio server"
 
 	option :server, type: :string
 	option :port,   type: :numeric, default: 9001
 	option :host,   type: :string, default: '0.0.0.0'
 	option :use,    type: :array, default: []
-	option :path,   type: :array, default: ['app', 'js']
+	option :path,   type: :array, default: ['app', 'js', 'opal']
 	option :static, type: :array, default: ['/css', '/fonts', '/img']
 	option :index,  type: :string
 	option :debug,  type: :boolean

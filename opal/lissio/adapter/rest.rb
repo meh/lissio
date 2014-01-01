@@ -21,12 +21,21 @@ class REST < Adapter
 		domain   options[:domain]
 		base     options[:base]
 		endpoint options[:endpoint] || endpoint_for(value)
+		parse    &options[:parse]
 
 		if block.arity == 0
 			instance_exec(&block)
 		else
 			block.call(self)
 		end if block
+	end
+
+	def parse(&block)
+		block ? @parse = block : @parse
+	end
+
+	def http(&block)
+		block ? @http = block : @http
 	end
 
 	def domain(value = nil)
@@ -71,10 +80,6 @@ class REST < Adapter
 		end
 	end
 
-	def http(&block)
-		block ? @http = block : @http
-	end
-
 	def to(method, *args)
 		result = if Proc === @endpoint
 			@endpoint.call(method, *args)
@@ -112,7 +117,11 @@ class REST < Adapter
 
 					Browser::HTTP.send(with || :get, url) do |req|
 						req.on :success do |res|
-							promise.resolve(new(res.json, *args))
+							if block = adapter.parse
+								promise.resolve(new(block.call(res.json, *args), *args))
+							else
+								promise.resolve(new(res.json, *args))
+							end
 						end
 
 						req.on :failure do |res|
@@ -212,7 +221,11 @@ class REST < Adapter
 
 					Browser::HTTP.send(with || :get, url) do |req|
 						req.on :success do |res|
-							promise.resolve(new(res.json, *args))
+							if block = adapter.parse
+								promise.resolve(new(block.call(res.json, *args), *args))
+							else
+								promise.resolve(new(res.json, *args))
+							end
 						end
 
 						req.on :failure do |res|

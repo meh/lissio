@@ -28,10 +28,6 @@ class Collection
 		klass ? @model = klass : @model
 	end
 
-	def self.parse(&block)
-		block ? @parse = block : @parse
-	end
-
 	include Enumerable
 
 	extend Forwardable
@@ -42,13 +38,13 @@ class Collection
 		@fetched_with = fetched_with
 
 		if data
-			if block = self.class.parse
-				@items = block.call(data)
-			else
-				@items = data.map {|datum|
+			@items = data.map {|datum|
+				if Model === datum
+					datum
+				else
 					model.new(datum)
-				}
-			end
+				end
+			}
 		end
 	end
 

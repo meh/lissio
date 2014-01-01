@@ -42,15 +42,13 @@ class Collection
 		@fetched_with = fetched_with
 
 		if data
-			@items = data.map {|datum|
-				next datum if Model === datum
-
-				if block = self.class.parse
-					block.call(datum)
-				else
+			if block = self.class.parse
+				@items = block.call(data)
+			else
+				@items = data.map {|datum|
 					model.new(datum)
-				end
-			}
+				}
+			end
 		end
 	end
 

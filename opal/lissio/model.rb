@@ -145,6 +145,10 @@ class Model
 		@primary
 	end
 
+	def self.parse(&block)
+		block ? @parse = block : @parse
+	end
+
 	extend Forwardable
 	def_delegators :class, :adapter, :properties
 
@@ -153,6 +157,10 @@ class Model
 	def initialize(data = nil, *fetched_with)
 		@fetched_with = fetched_with
 		@changed      = []
+
+		if block = self.class.parse
+			data = block.call(data)
+		end
 
 		if data
 			properties.each {|name, property|

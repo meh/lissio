@@ -18,7 +18,8 @@ class REST < Adapter
 	def initialize(value, options = {}, &block)
 		super(value)
 
-		domain options[:domain] || $document.location.host
+		domain   options[:domain]
+		base     options[:base]
 		endpoint options[:endpoint] || endpoint_for(value)
 
 		if block.arity == 0
@@ -32,18 +33,22 @@ class REST < Adapter
 		value ? @domain = value : @domain
 	end
 
+	def base(value = nil)
+		value ? @base = value : @base
+	end
+
 	def endpoint(value = nil, &block)
 		if value
-			if Proc === value
+			if Proc === value || Hash === value
 				@endpoint = value
 			elsif model?
-				@endpoint = proc {|method, instance, id|
+				@endpoint = proc {|method, *args|
 					case method
 					when :fetch
-						"#{value}/#{id}"
+						"#{value}/#{args.first}"
 
 					when :save, :create, :destroy
-						"#{value}/#{instance.id!}"
+						"#{value}/#{args.first.id!}"
 					end
 				}
 			else
@@ -64,33 +69,42 @@ class REST < Adapter
 		block ? @http = block : @http
 	end
 
-	def with(method, model, *args)
-		point = @endpoint.call(method, model, *args)
-
-		if Hash === point
-			point.first[0].to_s.downcase
-		end
-	end
-
-	def url(method, model, *args)
-		point = @endpoint.call(method, model, *args)
-
-		if Hash === point
-			point = point.first[1]
+	def to(method, *args)
+		result = if Proc === @endpoint
+			@endpoint.call(method, *args)
+		else
+			@endpoint[method].call(*args)
 		end
 
-		"//#{domain}#{point}"
+		if Hash === result
+			with, point = result.first
+		else
+			point = result
+		end
+
+		url = if @base
+			"#@base#{point}"
+		elsif @domain
+			"//#@domain#{point}"
+		else
+			"//#{$document.location.host}#{point}"
+		end
+
+		if with
+			[url, with]
+		else
+			url
+		end
 	end
 
 	def install
 		if model?
 			@for.instance_eval {
 				def self.fetch(*args)
-					promise = Promise.new
-					with    = adapter.with(:fetch, nil, *args) || :get
-					url     = adapter.url(:fetch, nil, *args)
+					promise   = Promise.new
+					url, with = adapter.to(:fetch, *args)
 
-					Browser::HTTP.send(with, url) do |req|
+					Browser::HTTP.send(with || :get, url) do |req|
 						req.on :success do |res|
 							promise.resolve(new(res.json, *args))
 						end
@@ -106,11 +120,10 @@ class REST < Adapter
 				end
 
 				def save
-					promise = Promise.new
-					with    = adapter.with(:save, self) || :put
-					url     = adapter.url(:save, self)
+					promise   = Promise.new
+					url, with = adapter.to(:save, self)
 
-					Browser::HTTP.send(with, url, to_json) do |req|
+					Browser::HTTP.send(with || :put, url, to_json) do |req|
 						req.on :success do |res|
 							promise.resolve(res.status)
 						end
@@ -126,11 +139,10 @@ class REST < Adapter
 				end
 
 				def create
-					promise = Promise.new
-					with    = adapter.with(:create, self) || :post
-					url     = adapter.url(:create, self)
+					promise   = Promise.new
+					url, with = adapter.to(:create, self)
 
-					Browser::HTTP.send(with, url, to_json) do |req|
+					Browser::HTTP.send(with || :post, url, to_json) do |req|
 						req.on :success do |res|
 							promise.resolve(res.status)
 						end
@@ -146,11 +158,10 @@ class REST < Adapter
 				end
 
 				def destroy
-					promise = Promise.new
-					with    = adapter.with(:destroy, self) || :delete
-					url     = adapter.url(:destroy, self)
+					promise   = Promise.new
+					url, with = adapter.to(:destroy, self)
 
-					Browser::HTTP.send(with, url) do |req|
+					Browser::HTTP.send(with || :delete, url) do |req|
 						req.on :success do |res|
 							promise.resolve(res.status)
 						end
@@ -166,12 +177,11 @@ class REST < Adapter
 				end
 
 				def reload
-					promise = Promise.new
-					fetched = fetched_with.empty? ? [id!] : fetched_with
-					with    = adapter.with(:fetch, self, *fetched) || :get
-					url     = adapter.url(:fetch, self, *fetched)
+					promise   = Promise.new
+					fetched   = fetched_with.empty? ? [id!] : fetched_with
+					url, with = adapter.to(:fetch, self, *fetched)
 
-					Browser::HTTP.send(with, url) do |req|
+					Browser::HTTP.send(with || :get, url) do |req|
 						req.on :success do |res|
 							initialize(res.json, *fetched_with)
 
@@ -191,11 +201,10 @@ class REST < Adapter
 		else
 			@for.instance_eval {
 				def self.fetch(*args, &block)
-					promise = Promise.new
-					with    = adapter.with(:fetch, nil, *args)
-					url     = adapter.url(:fetch, nil, *args)
+					promise   = Promise.new
+					url, with = adapter.to(:fetch, *args)
 
-					Browser::HTTP.send(with, url) do |req|
+					Browser::HTTP.send(with || :get, url) do |req|
 						req.on :success do |res|
 							promise.resolve(new(res.json, *args))
 						end
@@ -211,11 +220,10 @@ class REST < Adapter
 				end
 
 				def reload(&block)
-					promise = Promise.new
-					with    = adapter.with(:fetch, self, *fetched_with) || :get
-					url     = adapter.url(:fetch, self, *fetched_with)
+					promise   = Promise.new
+					url, with = adapter.to(:fetch, self, *fetched_with)
 
-					Browser::HTTP.send(with, url)  do |req|
+					Browser::HTTP.send(with || :get, url)  do |req|
 						req.on :success do |res|
 							initialize(res.json, *fetched_with)
 							promise.resolve(self)

@@ -43,6 +43,8 @@ class REST < Adapter
 				@endpoint = value
 			elsif model?
 				@endpoint = proc {|method, *args|
+					next value if args.empty?
+
 					case method
 					when :fetch
 						"#{value}/#{args.first}"
@@ -52,9 +54,13 @@ class REST < Adapter
 					end
 				}
 			else
-				@endpoint = proc {|method, instance, desc|
+				@endpoint = proc {|method, *args|
 					if method == :fetch
-						"#{value}?#{desc.encode_uri}"
+						if desc = args.first
+							"#{value}?#{desc.encode_uri}"
+						else
+							value
+						end
 					end
 				}
 			end

@@ -72,11 +72,19 @@ class Model
 					end
 				end
 
+				klass.define_method "#{name}!" do
+					instance_variable_get("@#{name}")
+				end
+
 				klass.define_method "#{name}=" do |value|
-					if instance_variable_get("@#{name}") != value.id!
+					if as === value
+						value = value.id!
+					end
+
+					if instance_variable_get("@#{name}") != value
 						@changed << name
 
-						instance_variable_set "@#{name}", value.id!
+						instance_variable_set "@#{name}", value
 					end
 				end
 			else

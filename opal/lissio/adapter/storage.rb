@@ -63,19 +63,21 @@ class Storage < Adapter
 					self.class.storage
 				end
 
-				def self.fetch(id, &block)
-					proc {
-						block.call(storage[id] || :error)
-					}.defer
+				def self.fetch(id)
+					if value = storage[id]
+						Promise.value(value)
+					else
+						Promise.error(:missing)
+					end
 				end
 
-				def create(&block)
-					proc {
-						key = id!
+				def create
+					key = id!
 
-						if key && storage[key]
-							block.call(:error) if block
-						else
+					if key && storage[key]
+						Promise.error(:exists)
+					else
+						Promise.defer {
 							adapter.autoincrement.each {|name|
 								unless __send__ name
 									__send__ "#{name}=", adapter.autoincrement!(name, storage)
@@ -83,34 +85,28 @@ class Storage < Adapter
 							}
 
 							storage[id!] = self
-
-							block.call(:ok) if block
-						end
-					}.defer
+						}
+					end
 				end
 
-				def save(&block)
-					proc {
-						if storage[id!]
+				def save
+					if storage[id!]
+						Promise.defer {
 							storage[id!] = self
-
-							block.call(:ok) if block
-						else
-							block.call(:error) if block
-						end
-					}.defer
+						}
+					else
+						Promise.error(:missing)
+					end
 				end
 
 				def destroy(&block)
-					proc {
-						if storage[id!]
+					if storage[id!]
+						Promise.defer {
 							storage.delete(id!)
-
-							block.call(:ok) if block
-						else
-							block.call(:error) if block
-						end
-					}.defer
+						}
+					else
+						Promise.error(:missing)
+					end
 				end
 			}
 		else
@@ -124,15 +120,15 @@ class Storage < Adapter
 				end
 
 				def self.fetch(*args, &block)
-					proc {
-						block.call new(storage.map {|name, value|
+					Promise.defer {
+						new(storage.map {|name, value|
 							next if Array === name && name.length == 2 && name.first == :__autoincrement__
 
 							if !adapter.filter || adapter.filter.call(value, *args)
 								value
 							end
 						}.compact)
-					}.defer
+					}
 				end
 			}
 		end

@@ -38,10 +38,10 @@ class Container < Component
 		element.clear
 
 		content.each {|c|
-			if String === c
-				element << c
-			else
+			if Component === c
 				element << c.render
+			else
+				element << c.to_s
 			end
 		}
 

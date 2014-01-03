@@ -49,6 +49,8 @@ class Model
 			end
 
 			case
+			when Proc === @as then @as.call(data)
+
 			when @as == Boolean then !!data
 			when @as == Array   then Array(data)
 			when @as == String  then data.to_s
@@ -56,8 +58,8 @@ class Model
 			when @as == Integer then data.to_i
 			when @as == Float   then data.to_f
 			when @as == Time    then Time.parse(data)
-			when Proc === @as   then @as.call(data)
-			else                     @as.new(*data)
+
+			else @as.new(*data)
 			end
 		end
 
@@ -68,7 +70,11 @@ class Model
 			if Class === @as && @as.ancestors.include?(Model)
 				klass.define_method name do
 					if id = instance_variable_get("@#{name}")
-						as.fetch(id)
+						if as === id
+							Promise.value(id)
+						else
+							as.fetch(id)
+						end
 					end
 				end
 

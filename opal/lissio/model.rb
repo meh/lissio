@@ -41,7 +41,7 @@ class Model
 			return data if !@as || @as === data
 
 			if @as.ancestors.include?(Model)
-				if @as.primary.as === data
+				if @as.primary && @as.primary.as === data
 					return data
 				else
 					return @as.new(*data)

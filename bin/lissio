@@ -30,8 +30,9 @@ class CLI < Thor
 		}
 
 		Rack::Server.start(
-			Host: options[:host],
-			Port: options[:port],
+			Host:   options[:host],
+			Port:   options[:port],
+			server: options[:server],
 
 			app: Lissio::Server.new {|s|
 				options[:path].each {|path|

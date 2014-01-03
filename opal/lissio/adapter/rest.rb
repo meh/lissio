@@ -118,7 +118,13 @@ class REST < Adapter
 					Browser::HTTP.send(with || :get, url) do |req|
 						req.on :success do |res|
 							if block = adapter.parse
-								promise.resolve(new(block.call(res.json, *args), *args))
+								value = block.call(res.json, *args)
+
+								if self === value
+									promise.resolve(value)
+								else
+									promise.resolve(new(value, *args))
+								end
 							else
 								promise.resolve(new(res.json, *args))
 							end
@@ -222,7 +228,13 @@ class REST < Adapter
 					Browser::HTTP.send(with || :get, url) do |req|
 						req.on :success do |res|
 							if block = adapter.parse
-								promise.resolve(new(block.call(res.json, *args), *args))
+								value = block.call(res.json, *args)
+
+								if self === value
+									promise.resolve(value)
+								else
+									promise.resolve(new(value, *args))
+								end
 							else
 								promise.resolve(new(res.json, *args))
 							end

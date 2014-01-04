@@ -9,7 +9,7 @@ class Application < Component
 
 		klass.include Singleton
 
-		$document.on :load do
+		$document.on 'dom:load' do
 			klass.start
 		end
 	end

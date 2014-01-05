@@ -48,6 +48,10 @@ class Collection
 		end
 	end
 
+	def [](id)
+		@items.find { |e| e.id! == id }
+	end
+
 	def replace(array)
 		@items = array
 

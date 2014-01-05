@@ -13,7 +13,7 @@ require 'browser/history'
 module Lissio
 
 class Router
-	attr_reader :routes, :options
+	attr_reader :routes, :options, :history
 
 	def initialize(options = {}, &block)
 		@routes   = []
@@ -95,6 +95,14 @@ class Router
 	end
 
 	def navigate(path)
+		if path == :back
+			return @history.back
+		end
+
+		if path == :forward
+			return @history.forward
+		end
+
 		if path == self.path
 			return update
 		end

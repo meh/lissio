@@ -54,7 +54,7 @@ class Application < Component
 
 	element :body
 
-	on :click, 'a[href^="/"]' do |e|
+	on :click, 'a[href^="/"], a[href="back"], a[href="forward"]' do |e|
 		unless e.alt? || e.ctrl? || e.meta? || e.shift?
 			e.stop!
 

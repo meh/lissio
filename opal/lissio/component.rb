@@ -40,16 +40,10 @@ class Component
 	def self.on(name, selector = nil, method = nil, &block)
 		if block
 			events[name] << [selector, block]
-
-			[name, selector, block]
 		elsif method
 			events[name] << [selector, method]
-
-			[name, selector, method]
 		else
-			events[name] << [nil, method]
-
-			[name, nil, method]
+			events[name] << [nil, selector]
 		end
 	end
 
@@ -125,12 +119,14 @@ class Component
 
 		self.class.events.each {|name, blocks|
 			blocks.each {|selector, block|
-				if block.is_a? Symbol
-					elem.on(name, selector, &method(block))
+				if Symbol === block
+					elem.on name, selector do |*args|
+						__send__ block, *args
+					end
 				else
-					elem.on(name, selector) {|*args|
+					elem.on name, selector do |*args|
 						instance_exec(*args, &block)
-					}
+					end
 				end
 			}
 		}
@@ -143,13 +139,17 @@ class Component
 
 		if @element
 			if block
-				@element.on(name, selector) {|*args|
+				@element.on name, selector do |*args|
 					instance_exec(*args, &block)
-				}
+				end
 			elsif method
-				@element.on(name, selector, &method(method))
+				@element.on name, selector do |*args|
+					__send__ method, *args
+				end
 			else
-				@element.on(name, &method(method))
+				@element.on name do |*args|
+					__send__ method, *args
+				end
 			end
 		end
 
@@ -168,7 +168,6 @@ class Component
 
 	alias destroy remove
 end
-
 
 Browser::DOM::Builder.for Component do |_, item|
 	item.render

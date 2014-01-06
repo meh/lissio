@@ -158,7 +158,7 @@ class Component
 
 	# When overriding, remember to call super as last.
 	def render(*)
-		element.trigger :render, self
+		element.trigger! :render, self
 		element
 	end
 

@@ -56,8 +56,7 @@ class Application < Component
 
 	on :click, 'a[href^="/"], a[href="back"], a[href="forward"]' do |e|
 		unless e.alt? || e.ctrl? || e.meta? || e.shift?
-			e.stop!
-
+			e.prevent
 			navigate e.target[:href] || e.target.ancestors('a').first[:href]
 		end
 	end

@@ -156,7 +156,7 @@ private
 				params = {}
 
 				@names.each_with_index {|name, index|
-					params[name] = match[index + 1]
+					params[name] = match[index + 1].decode_uri_component
 				}
 
 				@block.call params if @block

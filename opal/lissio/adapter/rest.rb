@@ -22,6 +22,7 @@ class REST < Adapter
 		base     options[:base]
 		endpoint options[:endpoint] || endpoint_for(value)
 		parse    &options[:parse]
+		error    &options[:error]
 
 		if block.arity == 0
 			instance_exec(&block)
@@ -32,6 +33,10 @@ class REST < Adapter
 
 	def parse(&block)
 		block ? @parse = block : @parse
+	end
+
+	def error(&block)
+		block ? @error = block : @error
 	end
 
 	def http(&block)
@@ -131,7 +136,11 @@ class REST < Adapter
 						end
 
 						req.on :failure do |res|
-							promise.reject(res.status)
+							if block = adapter.error
+								promise.reject(block.call(res))
+							else
+								promise.reject(res.status)
+							end
 						end
 
 						adapter.http.call(req) if adapter.http
@@ -150,7 +159,11 @@ class REST < Adapter
 						end
 
 						req.on :failure do |res|
-							promise.reject(res.status)
+							if block = adapter.error
+								promise.reject(block.call(res))
+							else
+								promise.reject(res.status)
+							end
 						end
 
 						adapter.http.call(req) if adapter.http
@@ -169,7 +182,11 @@ class REST < Adapter
 						end
 
 						req.on :failure do |res|
-							promise.reject(res.status)
+							if block = adapter.error
+								promise.reject(block.call(res))
+							else
+								promise.reject(res.status)
+							end
 						end
 
 						adapter.http.call(req) if adapter.http
@@ -188,7 +205,11 @@ class REST < Adapter
 						end
 
 						req.on :failure do |res|
-							promise.reject(res.status)
+							if block = adapter.error
+								promise.reject(block.call(res))
+							else
+								promise.reject(res.status)
+							end
 						end
 
 						adapter.http.call(req) if adapter.http
@@ -210,7 +231,11 @@ class REST < Adapter
 						end
 
 						req.on :failure do |res|
-							promise.reject(res.status)
+							if block = adapter.error
+								promise.reject(block.call(res))
+							else
+								promise.reject(res.status)
+							end
 						end
 
 						adapter.http.call(req) if adapter.http
@@ -241,7 +266,11 @@ class REST < Adapter
 						end
 
 						req.on :failure do |res|
-							promise.reject(res.status)
+							if block = adapter.error
+								promise.reject(block.call(res))
+							else
+								promise.reject(res.status)
+							end
 						end
 
 						adapter.http.call(req) if adapter.http
@@ -261,7 +290,11 @@ class REST < Adapter
 						end
 
 						req.on :failure do |res|
-							promise.reject(res.status)
+							if block = adapter.error
+								promise.reject(block.call(res))
+							else
+								promise.reject(res.status)
+							end
 						end
 
 						adapter.http.call(req) if adapter.http

@@ -37,75 +37,52 @@ class Alert < Component
 		end
 	end
 
-	def self.customize(*args, &block)
-		if args.length == 1
-			options = args.first
-		else
-			name, options = args
-		end
-
-		name    ||= "alert-custom-#{rand(10000)}"
-		options ||= {}
-
-		if self == Alert
-			inherited = []
-		else
-			inherited = class_names
-		end
-
+	def self.customize(options, &block)
 		Class.new(self) {
-			define_singleton_method :class_names do
-				inherited + [name]
-			end
-
-			tag class: [:alert, name, *inherited]
-
-			css! do
-				rule ".alert#{".#{inherited.join('.')}" unless inherited.empty?}.#{name}" do
-					instance_exec(&block) if block
-
-					if value = options[:background] || options[:bg]
-						background color: value
-					end
-
-					if value = options[:foreground] || options[:fg]
-						color value
-					end
-
-					if value = options[:border]
-						border color: value
-					end
-
-					if value = options[:padding]
-						padding value
-					end
+			css do
+				if value = options[:background] || options[:bg]
+					background color: value
 				end
+
+				if value = options[:foreground] || options[:fg]
+					color value
+				end
+
+				if value = options[:border]
+					border color: value
+				end
+
+				if value = options[:padding]
+					padding value
+				end
+
+				if block.arity == 0
+					instance_exec(&block)
+				else
+					block.call(self)
+				end if block
 			end
 		}
 	end
 
-	Info = customize :info,
-		background: '#d9edf7',
-		foreground: '#3a87ad',
-		border:     '#bce8f1'
+	Info = customize background: '#d9edf7',
+	                 foreground: '#3a87ad',
+	                 border:     '#bce8f1'
 
-	Success = customize :success,
-		message:    "The operation was successful.",
-		background: '#dff0d8',
-		foreground: '#468847',
-		border:     '#d6e9c6'
+	Success = customize message:    "The operation was successful.",
+	                    background: '#dff0d8',
+	                    foreground: '#468847',
+	                    border:     '#d6e9c6'
 
-	Warning = customize :warning,
-		message:    "Something might have gone wrong.",
-		background: '#fcf8e3',
-		foreground: '#c09853',
-		border:     '#fbeed5'
+	Warning = customize message:    "Something might have gone wrong.",
+	                    background: '#fcf8e3',
+	                    foreground: '#c09853',
+	                    border:     '#fbeed5'
 
-	Danger = customize :danger,
-		message:    "An unexpected error has occurred.",
-		background: '#f2dede',
-		foreground: '#b94a48',
-		border:     '#eed3d7'
+	Danger = customize message:    "An unexpected error has occurred.",
+	                   background: '#f2dede',
+	                   foreground: '#b94a48',
+	                   border:     '#eed3d7'
 end
 
 end; end

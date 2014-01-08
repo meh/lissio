@@ -79,14 +79,44 @@ class Component
 		end
 	end
 
-	def self.css(content = nil, &block)
+	def self.css!(content = nil, &block)
 		if content || block
-			@style.remove if @style
+			@global.remove if @global
 
-			@style = CSS(content, &block)
-			@style.append_to($document.head)
+			@global = CSS(content, &block)
+			@global.append_to($document.head)
 		else
-			CSS::StyleSheet.new(@style)
+			CSS::StyleSheet.new(@global)
+		end
+	end
+
+	def self.css(&block)
+		selector = if @tag && id = @tag[:id]
+			"##{id}"
+		elsif @tag && cls = @tag[:class]
+			".#{Array(cls).join('.')}"
+		elsif @element
+			@element
+		else
+			raise ArgumentError, 'could not infer selector'
+		end
+
+		if block
+			@local.remove if @local
+
+			@local = CSS do |_|
+				_.rule selector do
+					if block.arity == 0
+						_.instance_exec(&block)
+					else
+						block.call(_)
+					end
+				end
+			end
+
+			@local.append_to($document.head)
+		else
+			CSS::StyleSheet.new(@local)
 		end
 	end
 

@@ -19,9 +19,17 @@ class Component
 		events  = @events
 
 		klass.instance_eval {
-			@element = element if element
-			@tag     = tag if tag
-			@events  = events.clone if events
+			@element = element.dup if element
+			@tag     = tag.dup if tag
+			@events  = events.dup if events
+
+			if tag || element
+				unless tag
+					@tag = {}
+				end
+
+				@tag[:class] = Array(@tag[:class]) << "lissio-#{object_id}"
+			end
 		}
 	end
 
@@ -86,37 +94,37 @@ class Component
 			@global = CSS(content, &block)
 			@global.append_to($document.head)
 		else
-			CSS::StyleSheet.new(@global)
+			CSS::StyleSheet.new(@global) if @global
 		end
 	end
 
 	def self.css(&block)
-		selector = if @tag && id = @tag[:id]
-			"##{id}"
-		elsif @tag && cls = @tag[:class]
-			".#{Array(cls).join('.')}"
-		elsif @element
-			@element
-		else
-			raise ArgumentError, 'could not infer selector'
-		end
-
 		if block
+			selector = if @tag && id = @tag[:id]
+				"##{id}"
+			elsif @tag && cls = @tag[:class]
+				".#{Array(cls).join('.')}"
+			elsif @element
+				@element
+			else
+				raise ArgumentError, 'could not infer selector'
+			end
+
 			@local.remove if @local
 
-			@local = CSS do |_|
-				_.rule selector do
+			@local = CSS do
+				rule selector do
 					if block.arity == 0
-						_.instance_exec(&block)
+						instance_exec(&block)
 					else
-						block.call(_)
+						block.call(self)
 					end
 				end
 			end
 
 			@local.append_to($document.head)
 		else
-			CSS::StyleSheet.new(@local)
+			CSS::StyleSheet.new(@local) if @local
 		end
 	end
 

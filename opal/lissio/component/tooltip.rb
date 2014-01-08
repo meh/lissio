@@ -295,73 +295,64 @@ private
 		end
 	end
 
-	def self.customize(*args, &block)
-		if args.length == 1
-			options = args.first
-		else
-			name, options = args
-		end
-
-		name    ||= "tooltip-custom-#{rand(10000)}"
-		options ||= {}
-
+	def self.customize(options, &block)
 		Class.new(self) {
-			tag class: [:tooltip, name]
-
-			css! do
-				rule ".tooltip.#{name}" do
-					instance_exec(&block) if block
-
-					if value = options[:opacity]
-						rule '&.in' do
-							opacity value
-						end
-					end
-
-					if value = options[:foreground] || options[:fg]
-						rule '.tooltip-inner' do
-							color value
-						end
-					end
-
-					if value = options[:background] || options[:bg]
-						rule '.tooltip-inner' do
-							background color: value
-						end
-
-						rule '&.top .tooltip-arrow' do
-							border color: { top: value }
-						end
-
-						rule '&.top-right .tooltip-arrow' do
-							border color: { top: value }
-						end
-
-						rule '&.top-left .tooltip-arrow' do
-							border color: { top: value }
-						end
-
-						rule '&.right .tooltip-arrow' do
-							border color: { right: value }
-						end
-
-						rule '&.left .tooltip-arrow' do
-							border color: { right: value }
-						end
-
-						rule '&.bottom .tooltip-arrow' do
-							border color: { bottom: value }
-						end
-
-						rule '&.bottom-right .tooltip-arrow' do
-							border color: { bottom: value }
-						end
-
-						rule '&.bottom-left .tooltip-arrow' do
-							border color: { bottom: value }
-						end
+			css do
+				if value = options[:opacity]
+					rule '&.in' do
+						opacity value
 					end
 				end
+
+				if value = options[:foreground] || options[:fg]
+					rule '.tooltip-inner' do
+						color value
+					end
+				end
+
+				if value = options[:background] || options[:bg]
+					rule '.tooltip-inner' do
+						background color: value
+					end
+
+					rule '&.top .tooltip-arrow' do
+						border color: { top: value }
+					end
+
+					rule '&.top-right .tooltip-arrow' do
+						border color: { top: value }
+					end
+
+					rule '&.top-left .tooltip-arrow' do
+						border color: { top: value }
+					end
+
+					rule '&.right .tooltip-arrow' do
+						border color: { right: value }
+					end
+
+					rule '&.left .tooltip-arrow' do
+						border color: { right: value }
+					end
+
+					rule '&.bottom .tooltip-arrow' do
+						border color: { bottom: value }
+					end
+
+					rule '&.bottom-right .tooltip-arrow' do
+						border color: { bottom: value }
+					end
+
+					rule '&.bottom-left .tooltip-arrow' do
+						border color: { bottom: value }
+					end
+				end
+
+				if block.arity == 0
+					instance_exec(&block)
+				else
+					block.call(self)
+				end if block
 			end
 		}
 	end

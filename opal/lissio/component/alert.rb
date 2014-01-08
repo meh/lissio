@@ -28,14 +28,12 @@ class Alert < Component
 	tag class: :alert
 
 	css do
-		rule '.alert' do
-			border 1.px, :solid, :transparent
+		border 1.px, :solid, :transparent
 
-			padding 15.px
+		padding 15.px
 
-			rule 'a' do
-				font weight: :bold
-			end
+		rule 'a' do
+			font weight: :bold
 		end
 	end
 
@@ -62,7 +60,7 @@ class Alert < Component
 
 			tag class: [:alert, name, *inherited]
 
-			css do
+			css! do
 				rule ".alert#{".#{inherited.join('.')}" unless inherited.empty?}.#{name}" do
 					instance_exec(&block) if block
 

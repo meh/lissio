@@ -170,130 +170,128 @@ private
 	end
 
 	css do
-		rule '.tooltip' do
+		position :absolute
+		z index: 9001
+
+		display :block
+		visibility :visible
+
+		font size: 12.px
+		line height: 1.4
+
+		opacity 0
+
+		rule '&.in' do
+			opacity 0.9
+		end
+
+		rule '&.top' do
+			margin top: -3.px
+			padding 5.px, 0
+		end
+
+		rule '&.right' do
+			margin left: 3.px
+			padding 0, 5.px
+		end
+
+		rule '&.bottom' do
+			margin top: 3.px
+			padding 5.px, 0
+		end
+
+		rule '&.left' do
+			margin left: -3.px
+			padding 0, 5.px
+		end
+
+		rule '.tooltip-inner' do
+			max width: 200.px
+			padding 3.px, 8.px
+			color '#fff'
+
+			text align:      :center,
+			     decoration: :none
+
+			background color: '#000'
+			border radius: 4.px
+		end
+
+		rule '.tooltip-arrow' do
 			position :absolute
-			z index: 9001
+			width 0
+			height 0
 
-			display :block
-			visibility :visible
+			border color: :transparent,
+			       style: :solid
+		end
 
-			font size: 12.px
-			line height: 1.4
+		rule '&.top .tooltip-arrow' do
+			bottom 0
+			left 50.%
 
-			opacity 0
+			margin left: -5.px
+			border width: [5.px, 5.px, 0],
+				     color: { top: '#000' }
+		end
 
-			rule '&.in' do
-				opacity 0.9
-			end
+		rule '&.top-left .tooltip-arrow' do
+			bottom 0
+			left 5.px
 
-			rule '&.top' do
-				margin top: -3.px
-				padding 5.px, 0
-			end
+			border width: [5.px, 5.px, 0],
+				     color: { top: '#000' }
+		end
 
-			rule '&.right' do
-				margin left: 3.px
-				padding 0, 5.px
-			end
+		rule '&.top-right .tooltip-arrow' do
+			bottom 0
+			right 5.px
 
-			rule '&.bottom' do
-				margin top: 3.px
-				padding 5.px, 0
-			end
+			border width: [5.px, 5.px, 0],
+				     color: { top: '#000' }
+		end
 
-			rule '&.left' do
-				margin left: -3.px
-				padding 0, 5.px
-			end
+		rule '&.right .tooltip-arrow' do
+			top 50.%
+			left 0
 
-			rule '.tooltip-inner' do
-				max width: 200.px
-				padding 3.px, 8.px
-				color '#fff'
+			margin top: -5.px
+			border width: [5.px, 5.px, 5.px, 0],
+				     color: { right: '#000' }
+		end
 
-				text align:      :center,
-			       decoration: :none
+		rule '&.left .tooltip-arrow' do
+			top 50.%
+			right 0
 
-				background color: '#000'
-				border radius: 4.px
-			end
+			margin top: -5.px
+			border width: [5.px, 0, 5.px, 5.px],
+				     color: { left: '#000' }
+		end
 
-			rule '.tooltip-arrow' do
-				position :absolute
-				width 0
-				height 0
+		rule '&.bottom .tooltip-arrow' do
+			top 0
+			left 50.%
 
-				border color: :transparent,
-			         style: :solid
-			end
+			margin left: -5.px
+			border width: [0, 5.px, 5.px],
+				     color: { bottom: '#000' }
+		end
 
-			rule '&.top .tooltip-arrow' do
-				bottom 0
-				left 50.%
+		rule '&.bottom-left .tooltip-arrow' do
+			top 0
+			left 5.px
 
-				margin left: -5.px
-				border width: [5.px, 5.px, 0],
-				       color: { top: '#000' }
-			end
+			border width: [0, 5.px, 5.px],
+				     color: { bottom: '#000' }
+		end
 
-			rule '&.top-left .tooltip-arrow' do
-				bottom 0
-				left 5.px
+		rule '&.bottom-right .tooltip-arrow' do
+			top 0
+			right 5.px
 
-				border width: [5.px, 5.px, 0],
-				       color: { top: '#000' }
-			end
-
-			rule '&.top-right .tooltip-arrow' do
-				bottom 0
-				right 5.px
-
-				border width: [5.px, 5.px, 0],
-				       color: { top: '#000' }
-			end
-
-			rule '&.right .tooltip-arrow' do
-				top 50.%
-				left 0
-
-				margin top: -5.px
-				border width: [5.px, 5.px, 5.px, 0],
-				       color: { right: '#000' }
-			end
-
-			rule '&.left .tooltip-arrow' do
-				top 50.%
-				right 0
-
-				margin top: -5.px
-				border width: [5.px, 0, 5.px, 5.px],
-				       color: { left: '#000' }
-			end
-
-			rule '&.bottom .tooltip-arrow' do
-				top 0
-				left 50.%
-
-				margin left: -5.px
-				border width: [0, 5.px, 5.px],
-				       color: { bottom: '#000' }
-			end
-
-			rule '&.bottom-left .tooltip-arrow' do
-				top 0
-				left 5.px
-
-				border width: [0, 5.px, 5.px],
-				       color: { bottom: '#000' }
-			end
-
-			rule '&.bottom-right .tooltip-arrow' do
-				top 0
-				right 5.px
-
-				border width: [0, 5.px, 5.px],
-				       color: { bottom: '#000' }
-			end
+			border width: [0, 5.px, 5.px],
+				     color: { bottom: '#000' }
 		end
 	end
 
@@ -310,7 +308,7 @@ private
 		Class.new(self) {
 			tag class: [:tooltip, name]
 
-			css do
+			css! do
 				rule ".tooltip.#{name}" do
 					instance_exec(&block) if block
 

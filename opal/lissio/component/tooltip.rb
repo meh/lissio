@@ -151,7 +151,6 @@ private
 
 	def apply(placement)
 		position = offset(placement)
-		size     = element.size
 
 		margin_top  = element.style['margin-top'].to_u
 		margin_left = element.style['margin-left'].to_u

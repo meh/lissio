@@ -8,6 +8,7 @@ end
 require 'thor'
 require 'rack'
 require 'fileutils'
+require 'yaml'
 
 require 'lissio'
 require 'opal/browser'
@@ -15,18 +16,41 @@ require 'opal/browser'
 class CLI < Thor
 	desc "start", "start the lissio server"
 
-	option :server, type: :string
-	option :port,   type: :numeric, default: 9001
-	option :host,   type: :string, default: '0.0.0.0'
-	option :use,    type: :array, default: []
-	option :path,   type: :array, default: ['app', 'js', 'opal']
-	option :static, type: :array, default: ['/css', '/fonts', '/img']
-	option :index,  type: :string
-	option :debug,  type: :boolean
+	option :server,  type: :string
+	option :port,    type: :numeric, default: 9001
+	option :host,    type: :string, default: '0.0.0.0'
+	option :require, type: :array, default: []
+	option :use,     type: :array, default: []
+	option :path,    type: :array, default: ['app', 'js', 'opal']
+	option :static,  type: :array, default: ['/css', '/fonts', '/img']
+	option :index,   type: :string
+	option :debug,   type: :boolean
 
 	def start
+		options = self.options.dup
+
+		if File.readable? 'lissio.yml'
+			YAML.load_file('lissio.yml').tap {|opts|
+				%w[server port host index debug].each {|name|
+					if opts.has_key? name
+						options[name] = opts[name]
+					end
+				}
+
+				%w[use require path static].each {|name|
+					if opts.has_key? name
+						options[name] = Array(opts[name])
+					end
+				}
+			}
+		end
+
+		options[:require].each {|r|
+			require r
+		}
+
 		options[:use].each {|u|
-			require u
+			Opal.use_gem u
 		}
 
 		Rack::Server.start(

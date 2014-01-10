@@ -37,7 +37,7 @@ class Alert < Component
 		end
 	end
 
-	def self.customize(options, &block)
+	def self.customize(options = {}, &block)
 		Class.new(self) {
 			css do
 				if value = options[:background] || options[:bg]

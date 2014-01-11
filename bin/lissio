@@ -17,8 +17,8 @@ class CLI < Thor
 	desc "start", "start the lissio server"
 
 	option :server,  type: :string
-	option :port,    type: :numeric, default: 9001
-	option :host,    type: :string, default: '0.0.0.0'
+	option :port,    type: :numeric
+	option :host,    type: :string
 	option :require, type: :array, default: []
 	option :use,     type: :array, default: []
 	option :path,    type: :array, default: ['app', 'js', 'opal']
@@ -32,7 +32,7 @@ class CLI < Thor
 		if File.readable? 'lissio.yml'
 			YAML.load_file('lissio.yml').tap {|opts|
 				%w[server port host index debug].each {|name|
-					if opts.has_key? name
+					if opts.has_key?(name) && !options.has_key?(name)
 						options[name] = opts[name]
 					end
 				}
@@ -54,8 +54,8 @@ class CLI < Thor
 		}
 
 		Rack::Server.start(
-			Host:   options[:host],
-			Port:   options[:port],
+			Host:   options[:host] || '0.0.0.0',
+			Port:   options[:port] || 9292,
 			server: options[:server],
 
 			app: Lissio::Server.new {|s|

@@ -13,7 +13,15 @@ class Alert < Component
 	end
 
 	def render
-		if @options[:escape] == false
+		if Exception === @message
+			element << @message.inspect
+			element << DOM { br; br }
+
+			@message.backtrace.each {|line|
+				element << line
+				element << DOM { br }
+			}
+		elsif @options[:escape] == false
 			element.inner_html = @message
 		else
 			@message.each_line {|line|
@@ -65,24 +73,28 @@ class Alert < Component
 		}
 	end
 
-	Info = customize background: '#d9edf7',
-	                 foreground: '#3a87ad',
-	                 border:     '#bce8f1'
+	Info = customize \
+		background: '#d9edf7',
+		foreground: '#3a87ad',
+		border:     '#bce8f1'
 
-	Success = customize message:    "The operation was successful.",
-	                    background: '#dff0d8',
-	                    foreground: '#468847',
-	                    border:     '#d6e9c6'
+	Success = customize \
+		message:    "The operation was successful.",
+		background: '#dff0d8',
+		foreground: '#468847',
+		border:     '#d6e9c6'
 
-	Warning = customize message:    "Something might have gone wrong.",
-	                    background: '#fcf8e3',
-	                    foreground: '#c09853',
-	                    border:     '#fbeed5'
+	Warning = customize \
+		message:    "Something might have gone wrong.",
+		background: '#fcf8e3',
+		foreground: '#c09853',
+		border:     '#fbeed5'
 
-	Danger = customize message:    "An unexpected error has occurred.",
-	                   background: '#f2dede',
-	                   foreground: '#b94a48',
-	                   border:     '#eed3d7'
+	Danger = customize \
+		message:    "An unexpected error has occurred.",
+		background: '#f2dede',
+		foreground: '#b94a48',
+		border:     '#eed3d7'
 end
 
 end; end

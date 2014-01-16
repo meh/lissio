@@ -22,14 +22,6 @@ class Component
 			@element = element.dup if element
 			@tag     = tag.dup if tag
 			@events  = events.dup if events
-
-			if tag || element
-				unless tag
-					@tag = {}
-				end
-
-				@tag[:class] = Array(@tag[:class]) << "lissio-#{object_id}"
-			end
 		}
 	end
 
@@ -39,6 +31,24 @@ class Component
 
 	def self.tag(options = nil)
 		options ? @tag = options : @tag
+	end
+
+	def self.inheritance
+		ancestors.take_while {|klass|
+			klass != Component
+		}.map {|klass|
+			next unless klass.ancestors.include?(Component)
+			next unless klass.css
+
+			if klass.superclass != Component
+				next if klass.tag != klass.superclass.tag
+				next if klass.element != klass.superclass.element
+			else
+				next if klass.tag || klass.element
+			end
+
+			"lissio-#{klass.object_id}"
+		}.compact
 	end
 
 	def self.events
@@ -107,7 +117,7 @@ class Component
 			elsif @element
 				@element
 			else
-				raise ArgumentError, 'could not infer selector'
+				".lissio-#{object_id}"
 			end
 
 			@local.remove if @local
@@ -153,6 +163,7 @@ class Component
 		end
 
 		elem.add_class(*tag[:class]) if tag[:class]
+		elem.add_class(*self.class.inheritance)
 		elem[:id] = tag[:id] if tag[:id]
 
 		# FIXME: when [2, *a] is fixed

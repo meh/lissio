@@ -155,17 +155,20 @@ class Component
 		elem.add_class(*tag[:class]) if tag[:class]
 		elem[:id] = tag[:id] if tag[:id]
 
-		self.class.events.each {|name, blocks|
-			blocks.each {|selector, block|
-				if Symbol === block
-					elem.on name, selector do |*args|
-						__send__ block, *args
+		# FIXME: when [2, *a] is fixed
+		[self.class.events, @events].compact.each {|events|
+			events.each {|name, blocks|
+				blocks.each {|selector, block|
+					if Symbol === block
+						elem.on name, selector do |*args|
+							__send__ block, *args
+						end
+					else
+						elem.on name, selector do |*args|
+							instance_exec(*args, &block)
+						end
 					end
-				else
-					elem.on name, selector do |*args|
-						instance_exec(*args, &block)
-					end
-				end
+				}
 			}
 		}
 
@@ -173,8 +176,6 @@ class Component
 	end
 
 	def on(name, selector = nil, method = nil, &block)
-		self.class.on(name, selector, method, &block)
-
 		if @element
 			if block
 				@element.on name, selector do |*args|
@@ -189,9 +190,17 @@ class Component
 					__send__ method, *args
 				end
 			end
-		end
+		else
+			@events ||= {}
 
-		self
+			if block
+				@events[name] << [selector, block]
+			elsif method
+				@events[name] << [selector, method]
+			else
+				@events[name] << [nil, selector]
+			end
+		end
 	end
 
 	# When overriding, remember to call super as last.

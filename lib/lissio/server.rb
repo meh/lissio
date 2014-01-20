@@ -131,6 +131,7 @@ class Server
 
 		@app ||= Rack::Builder.app do
 			use Rack::ShowExceptions
+			use Rack::Deflater
 
 			map '/assets' do
 				run this.sprockets

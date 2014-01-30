@@ -17,11 +17,7 @@ Gem::Specification.new do |s|
 	s.require_paths  = ['lib']
 
   s.add_dependency 'opal', '>= 0.6.0'
-	s.add_dependency 'opal-browser'
+	s.add_dependency 'opal-browser', '>= 0.2.0.beta1'
 	s.add_dependency 'rack'
-
-	s.add_development_dependency 'opal-spec'
-	s.add_development_dependency 'rake'
-
 	s.add_dependency 'thor'
 end

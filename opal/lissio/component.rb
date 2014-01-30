@@ -142,6 +142,7 @@ class Component
 
 	def initialize(parent = nil)
 		@parent = parent
+		@events = Hash.new { |h, k| h[k] = [] }
 	end
 
 	def tag
@@ -166,8 +167,7 @@ class Component
 		elem.add_class(*self.class.inheritance)
 		elem[:id] = tag[:id] if tag[:id]
 
-		# FIXME: when [2, *a] is fixed
-		[self.class.events, @events].compact.each {|events|
+		[self.class.events, @events].each {|events|
 			events.each {|name, blocks|
 				blocks.each {|selector, block|
 					if Symbol === block
@@ -202,8 +202,6 @@ class Component
 				end
 			end
 		else
-			@events ||= {}
-
 			if block
 				@events[name] << [selector, block]
 			elsif method

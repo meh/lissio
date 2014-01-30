@@ -58,7 +58,9 @@ class Autocomplete < Lissio::Component
 		end
 	end
 
-	def initialize(&block)
+	def initialize(parent = nil, &block)
+		super(parent)
+
 		@autocompleters = []
 
 		if block.arity.nonzero?

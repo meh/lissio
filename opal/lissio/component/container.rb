@@ -21,7 +21,7 @@ class Container < Component
 		end
 	end
 
-	def initialize(parent, &block)
+	def initialize(parent = nil, &block)
 		super(parent)
 
 		if block

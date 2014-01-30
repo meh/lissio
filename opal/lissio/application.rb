@@ -39,6 +39,8 @@ class Application < Component
 	def_delegators :@router, :navigate, :route
 
 	def initialize
+		super()
+
 		@router = Lissio::Router.new(fragment: false)
 	end
 

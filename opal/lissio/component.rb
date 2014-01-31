@@ -172,7 +172,12 @@ class Component
 
 		elem.add_class(*tag[:class]) if tag[:class]
 		elem.add_class(*self.class.inheritance)
-		elem[:id] = tag[:id] if tag[:id]
+
+		tag.each {|name, value|
+			if name != :class && name != :name
+				elem[name] = value
+			end
+		}
 
 		[self.class.events, @events].each {|events|
 			events.each {|name, blocks|

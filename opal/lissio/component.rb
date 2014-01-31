@@ -123,6 +123,8 @@ class Component
 				".#{Array(cls).join('.')}"
 			elsif @element
 				@element
+			elsif self.name
+				self.name.gsub(/::/, '-').downcase
 			else
 				".lissio-#{object_id}"
 			end

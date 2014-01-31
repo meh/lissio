@@ -40,6 +40,18 @@ class Component
 	end
 
 	def self.tag(options = nil)
+		return @tag unless options
+
+		@tag ||= {}
+
+		if cls = options.delete(:class)
+			@tag[:class] = Array(@tag[:class]).concat(Array(cls))
+		end
+
+		@tag.merge!(options)
+	end
+
+	def self.tag!(options = nil)
 		options ? @tag = options : @tag
 	end
 

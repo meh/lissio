@@ -51,11 +51,12 @@ class Component
 			next unless klass.css
 
 			if klass.superclass != Component
+				next if klass.element != klass.superclass.element
+				next if klass.tag && !klass.superclass.tag
+
 				if a = klass.tag && b = klass.superclass.tag
 					next if a[:class] != b[:class] || a[:id] != b[:id]
 				end
-
-				next if klass.element != klass.superclass.element
 			else
 				next if klass.tag || klass.element
 			end

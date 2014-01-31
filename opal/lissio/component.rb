@@ -149,11 +149,6 @@ class Component
 
 	attr_accessor :parent
 
-	def initialize(parent = nil)
-		@parent = parent
-		@events = Hash.new { |h, k| h[k] = [] }
-	end
-
 	def tag
 		{ name: :div }.merge(self.class.tag || {})
 	end
@@ -181,7 +176,7 @@ class Component
 			end
 		}
 
-		[self.class.events, @events].each {|events|
+		[self.class.events, @events].compact.each {|events|
 			events.each {|name, blocks|
 				blocks.each {|selector, block|
 					if Symbol === block
@@ -216,6 +211,8 @@ class Component
 				end
 			end
 		else
+			@events ||= Hash.new { |h, k| h[k] = [] }
+
 			if block
 				@events[name] << [selector, block]
 			elsif method

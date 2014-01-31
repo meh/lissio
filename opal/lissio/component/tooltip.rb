@@ -11,9 +11,7 @@ class Tooltip < Lissio::Component
 
 	def initialize(*args, &block)
 		if Lissio::Component === args.first
-			super(args.shift)
-		else
-			super()
+			@parent = args.shift
 		end
 
 		@options = DEFAULTS.merge(args.first)

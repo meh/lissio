@@ -21,9 +21,7 @@ class Container < Component
 		end
 	end
 
-	def initialize(parent = nil, &block)
-		super(parent)
-
+	def initialize(&block)
 		if block
 			@content = Definer.new(&block).to_a
 		else

@@ -8,8 +8,6 @@ class Alert < Component
 	attr_reader :message, :options
 
 	def initialize(message, options = {})
-		super()
-
 		@message = message
 		@options = options
 	end

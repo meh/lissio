@@ -124,7 +124,7 @@ class Component
 			elsif @element
 				@element
 			elsif self.name
-				self.name.gsub(/::/, '-').downcase
+				".#{self.name.gsub(/::/, '-').downcase}"
 			else
 				".lissio-#{object_id}"
 			end

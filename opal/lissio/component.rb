@@ -19,9 +19,19 @@ class Component
 		events  = @events
 
 		klass.instance_eval {
-			@element = element.dup if element
-			@tag     = tag.dup if tag
-			@events  = events.dup if events
+			@element = element
+
+			if tag
+				@tag = tag.dup
+				@tag[:class] = @tag[:class].dup
+			end
+
+			if events
+				@events = events.dup
+				@events.each_key {|key|
+					@events[key] = @events[key].dup
+				}
+			end
 		}
 	end
 

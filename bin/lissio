@@ -11,71 +11,13 @@ require 'fileutils'
 require 'yaml'
 
 require 'lissio'
-require 'opal/browser'
 
 class CLI < Thor
-	desc "start", "start the lissio server"
-
-	option :server,  type: :string
-	option :port,    type: :numeric
-	option :host,    type: :string
-	option :require, type: :array, default: []
-	option :use,     type: :array, default: []
-	option :path,    type: :array, default: ['app', 'js', 'opal']
-	option :static,  type: :array, default: ['/css', '/fonts', '/img']
-	option :index,   type: :string
-	option :debug,   type: :boolean
-
-	def start
-		options = self.options.dup
-
-		if File.readable? 'lissio.yml'
-			YAML.load_file('lissio.yml').tap {|opts|
-				%w[server port host index debug].each {|name|
-					if opts.has_key?(name) && !options.has_key?(name)
-						options[name] = opts[name]
-					end
-				}
-
-				%w[use require path static].each {|name|
-					if opts.has_key? name
-						options[name] = Array(opts[name])
-					end
-				}
-			}
-		end
-
-		options[:require].each {|r|
-			require r
-		}
-
-		options[:use].each {|u|
-			Opal.use_gem u
-		}
-
-		Rack::Server.start(
-			Host:   options[:host] || '0.0.0.0',
-			Port:   options[:port] || 9292,
-			server: options[:server],
-
-			app: Lissio::Server.new {|s|
-				options[:path].each {|path|
-					s.append_path path
-				}
-
-				s.static = options[:static]
-
-				if index = options[:index]
-					s.index = index
-				end
-
-				if options[:debug]
-					s.debug = true
-				end
-			})
-	end
-
 	desc "new [PATH]", "create a new lissio application"
+
+	option :adapter, type: :string
+	option :components, type: :string
+
 	def new(path = '.')
 		FileUtils.mkpath path
 		FileUtils.cd path do
@@ -130,6 +72,114 @@ class CLI < Thor
 				RUBY
 			end
 		end
+	end
+
+	desc "start", "start the lissio server"
+
+	option :server,  aliases: '-S', type: :string
+	option :port,    aliases: '-p', type: :numeric
+	option :host,                   type: :string
+	option :main,    aliases: '-m', type: :string
+	option :require, aliases: '-r', type: :array, default: []
+	option :use,     aliases: '-u', type: :array, default: []
+	option :path,                   type: :array, default: ['app', 'js', 'opal']
+	option :static,  aliases: '-s', type: :array, default: ['/css', '/fonts', '/img']
+	option :index,   aliases: '-i', type: :string
+	option :debug,   aliases: '-d', type: :boolean
+
+	def start
+		options = prepare
+
+		Rack::Server.start(
+			Host:   options[:host] || '0.0.0.0',
+			Port:   options[:port] || 9292,
+			server: options[:server],
+
+			app: Lissio::Server.new {|s|
+				options[:path].each {|path|
+					s.append_path path
+				}
+
+				s.static = options[:static]
+
+				if main = options[:main]
+					s.main = main
+				end
+
+				if index = options[:index]
+					s.index = index
+				end
+
+				if options[:debug]
+					s.debug = true
+				end
+			})
+	end
+
+	desc "build [PATH]", "create a server-less distribution of the application"
+
+	option :main,    aliases: '-m', type: :string
+	option :require, aliases: '-r', type: :array, default: []
+	option :use,     aliases: '-u', type: :array, default: []
+	option :path,                   type: :array, default: ['app', 'js', 'opal']
+	option :index,   aliases: '-i', type: :string
+	option :force,   aliases: '-f', type: :boolean, default: false
+
+	def build(output = 'index.html')
+		if !options[:force] && File.exists?(output)
+			raise ArgumentError, "'#{output}' already exists"
+		end
+
+		options = prepare
+
+		File.open output, 'w' do |f|
+			builder = Lissio::Builder.new {|b|
+				options[:path].each {|path|
+					b.append_path path
+				}
+
+				if main = options[:main]
+					b.main = main
+				end
+
+				if index = options[:index]
+					b.index = index
+				end
+			}
+
+			f.write builder.build
+		end
+	end
+
+private
+	def prepare
+		options = self.options.dup
+
+		if File.readable? 'lissio.yml'
+			YAML.load_file('lissio.yml').tap {|opts|
+				%w[server port host index debug main].each {|name|
+					if opts.has_key?(name) && !options.has_key?(name)
+						options[name] = opts[name]
+					end
+				}
+
+				%w[use require path static].each {|name|
+					if opts.has_key? name
+						options[name] = Array(opts[name])
+					end
+				}
+			}
+		end
+
+		options[:require].each {|r|
+			require r
+		}
+
+		options[:use].each {|u|
+			Opal.use_gem u
+		}
+
+		options
 	end
 end
 

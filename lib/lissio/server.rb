@@ -61,8 +61,6 @@ class Server
 				end
 
 				File.read @path
-			elsif File.exist? 'index.html'
-				File.read 'index.html'
 			elsif File.exist? 'index.html.erb'
 				File.read 'index.html.erb'
 			else
@@ -101,8 +99,9 @@ class Server
 	attr_accessor :debug, :index, :main, :static, :source_maps, :sprockets
 	def_delegators :@sprockets, :append_path, :use_gem
 
-	def initialize(options = {}, &block)
+	def initialize(&block)
 		@sprockets = Opal::Environment.new
+		@main      = 'app'
 
 		block.call(self) if block
 	end

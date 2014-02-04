@@ -127,10 +127,16 @@ class Component
 		end
 	end
 
-	def self.text(string)
-		render {
-			element.content = string
-		}
+	def self.text(string = nil, &block)
+		if block
+			render {
+				element.content = instance_exec(&block)
+			}
+		else
+			render {
+				element.content = string
+			}
+		end
 	end
 
 	def self.css!(content = nil, &block)

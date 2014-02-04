@@ -127,6 +127,12 @@ class Component
 		end
 	end
 
+	def self.text(string)
+		render {
+			element.content = string
+		}
+	end
+
 	def self.css!(content = nil, &block)
 		if content || block
 			@global.remove if @global

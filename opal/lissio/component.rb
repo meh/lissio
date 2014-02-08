@@ -62,15 +62,17 @@ class Component
 			next unless klass.ancestors.include?(Component)
 			next unless klass.css
 
-			if klass.superclass != Component
-				next if klass.element != klass.superclass.element
-				next if klass.tag && !klass.superclass.tag
+			tag     = klass.tag
+			element = klass.element
+			parent  = klass.superclass
 
-				if a = klass.tag && b = klass.superclass.tag
-					next if a[:class] != b[:class] || a[:id] != b[:id]
-				end
+			if parent != Component
+				next if element != parent.element
+				next if tag && !parent.tag
+				next if tag && (tag[:class] != parent.tag[:class] || tag[:id] != parent.tag[:id])
 			else
-				next if klass.tag || klass.element
+				next if element
+				next if tag && (tag[:class] || tag[:id])
 			end
 
 			if klass.name

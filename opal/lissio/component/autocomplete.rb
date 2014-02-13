@@ -7,7 +7,8 @@ class Autocomplete < Lissio::Component
 	class Section < Lissio::Component
 		class Options
 			def initialize(&block)
-				@key = :id
+				@key   = :id
+				@limit = 10
 
 				if block.arity.nonzero?
 					block.call(self)
@@ -20,12 +21,20 @@ class Autocomplete < Lissio::Component
 				value ? @title = value : @title
 			end
 
-			def url(value = nil)
-				value ? @url = value : @url
+			def local(value = nil)
+				value ? @local = value : @local
+			end
+
+			def remote(value = nil)
+				value ? @remote = value : @remote
 			end
 
 			def key(value = nil)
 				value ? @key = value : @key
+			end
+
+			def limit(value = nil)
+				value ? @limit = value : @limit
 			end
 
 			def select(&block)
@@ -103,10 +112,12 @@ class Autocomplete < Lissio::Component
 		end
 
 		@autocompleters << {
-			url:     options.url,
 			title:   options.title,
-			select:  options.select,
+			local:   options.local,
+			remote:  options.remote,
 			key:     options.key,
+			limit:   options.limit,
+			select:  options.select,
 			section: section
 		}
 	end
@@ -132,15 +143,25 @@ class Autocomplete < Lissio::Component
 		remove_old_completions
 
 		comps = @autocompleters.map do |ac|
-			url = "#{ac[:url]}?q=#{query.value}"
+			local_completions = get_local_completions(ac)
 
-			Browser::HTTP.get(url).then do |response|
-				[ac, response]
+			if local_completions.count < ac[:limit] and ac[:remote]
+				url = "#{ac[:remote]}?q=#{query.value}"
+
+				Browser::HTTP.get(url).then do |response|
+					[ac, local_completions, response]
+				end
+			else
+				[ac, local_completions, nil]
 			end
 		end
 
-		Promise.when(*comps).each do |ac, response|
-			append_completions(ac, response.json)
+		Promise.when(*comps).each do |ac, completions, response|
+			if response
+				completions += response.json.take(ac[:limit] - completions.size)
+			end
+
+			append_completions(ac, completions)
 		end
 	end
 
@@ -188,6 +209,17 @@ class Autocomplete < Lissio::Component
 		else
 			hint.value = ''
 		end
+	end
+
+	def get_local_completions(ac)
+		return [] unless ac[:local]
+
+		key = ac[:key]
+		q   = query.value
+
+		ac[:local].select do |comp|
+			comp[key].match(q)
+		end.take(ac[:limit])
 	end
 
 	def append_completions(ac, comps)

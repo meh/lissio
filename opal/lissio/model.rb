@@ -15,13 +15,60 @@ module Lissio
 
 class Model
 	class Property
-		attr_reader :name, :as
+		def self.coerce(data, as)
+			return data if !as || as === data
+
+			if Module === as
+				if as.ancestors.include?(Model)
+					if as.primary && as.primary.as === data
+						return data
+					else
+						return as.new(*data)
+					end
+				end
+			end
+
+			case
+			when Proc === as
+				as.call(data)
+
+			when Array === as
+				data.map { |d| coerce(d, as.first) }
+
+			when as == Boolean
+				!!data
+
+			when as == Array
+				Array(data)
+
+			when as == String
+				data.to_s
+
+			when as == Symbol
+				data.to_sym
+
+			when as == Integer
+				data.to_i
+
+			when as == Float
+				data.to_f
+
+			when as == Time
+				Time.parse(data)
+
+			else
+				as.new(*data)
+			end
+		end
+
+		attr_reader :name, :as, :key
 
 		def initialize(name, options)
 			@name    = name
 			@default = options[:default]
 			@primary = options[:primary] || false
 			@as      = options[:as]
+			@key     = options[:key]
 		end
 
 		def primary?
@@ -38,29 +85,8 @@ class Model
 
 		def new(data)
 			return default if data.nil?
-			return data if !@as || @as === data
 
-			if @as.ancestors.include?(Model)
-				if @as.primary && @as.primary.as === data
-					return data
-				else
-					return @as.new(*data)
-				end
-			end
-
-			case
-			when Proc === @as then @as.call(data)
-
-			when @as == Boolean then !!data
-			when @as == Array   then Array(data)
-			when @as == String  then data.to_s
-			when @as == Symbol  then data.to_sym
-			when @as == Integer then data.to_i
-			when @as == Float   then data.to_f
-			when @as == Time    then Time.parse(data)
-
-			else @as.new(*data)
-			end
+			Property.coerce(data, @as)
 		end
 
 		def define(klass)
@@ -170,7 +196,7 @@ class Model
 
 		if data
 			properties.each {|name, property|
-				instance_variable_set "@#{name}", property.new(data[name])
+				instance_variable_set "@#{name}", property.new(data[property.key || name])
 			}
 		end
 	end

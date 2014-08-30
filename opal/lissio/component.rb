@@ -266,6 +266,11 @@ class Component
 		element
 	end
 
+	def trigger(*args, &block)
+		element.trigger!(*args, &block)
+		self
+	end
+
 	def remove
 		@element.remove if @element
 	end

@@ -132,11 +132,11 @@ class Component
 	def self.text(string = nil, &block)
 		if block
 			render {
-				element.content = instance_exec(&block)
+				element.inner_text = instance_exec(&block)
 			}
 		else
 			render {
-				element.content = string
+				element.inner_text = string
 			}
 		end
 	end

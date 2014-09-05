@@ -95,6 +95,8 @@ class Router
 	end
 
 	def navigate(path)
+		@initial = nil
+
 		if path == :back
 			return @history.back
 		end

@@ -267,6 +267,11 @@ class Component
 	end
 
 	def trigger(*args, &block)
+		element.trigger(*args, &block)
+		self
+	end
+
+	def trigger!(*args, &block)
 		element.trigger!(*args, &block)
 		self
 	end

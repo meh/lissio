@@ -89,6 +89,7 @@ class Server
 					%Q{<script src="/assets/#{a.logical_path}?body=1"></script>}
 				}.join ?\n
 			else
+				@server.sprockets.js_compressor = :uglify
 				"<script src=\"/assets/#{source}.js\"></script>"
 			end
 		end

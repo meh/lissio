@@ -1,4 +1,5 @@
 require 'opal/sprockets/environment'
+require 'uglifier'
 require 'forwardable'
 
 module Lissio
@@ -42,7 +43,7 @@ class Builder
 	end
 
 	def lissio(source = main)
-		"<script>#{@sprockets[source].to_s}</script>"
+		"<script>#{Uglifier.compile(@sprockets[source].to_s)}</script>"
 	end
 end
 

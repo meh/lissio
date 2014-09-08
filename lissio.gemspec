@@ -20,4 +20,5 @@ Gem::Specification.new do |s|
 	s.add_dependency 'opal-browser', '>= 0.2.0.beta1'
 	s.add_dependency 'rack'
 	s.add_dependency 'thor'
+	s.add_dependency 'uglifier'
 end

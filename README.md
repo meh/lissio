@@ -51,8 +51,6 @@ in pure Ruby using various DSLs.
 
 ```ruby
 class MyComponent < Lissio::Component
-  tag class: 'my-component'
-
   on :click, '.title' do
     alert 'You clicked on the title'
   end
@@ -67,15 +65,13 @@ class MyComponent < Lissio::Component
   end
 
   css do
-    rule '.my-component' do
-      rule '.title' do
-        font size: 32.px
-      end
+    rule '.title' do
+      font size: 32.px
+    end
 
-      rule '.subtitle' do
-        font size:  18.px,
-             style: :italic
-      end
+    rule '.subtitle' do
+      font size:  18.px,
+           style: :italic
     end
   end
 end

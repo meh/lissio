@@ -101,8 +101,12 @@ class Server
 	def_delegators :@sprockets, :append_path, :use_gem
 
 	def initialize(&block)
-		@sprockets = Opal::Environment.new
+		@sprockets = Sprockets::Environment.new
 		@main      = 'app'
+
+		Opal.paths.each {|path|
+			@sprockets.append_path path
+		}
 
 		block.call(self) if block
 	end

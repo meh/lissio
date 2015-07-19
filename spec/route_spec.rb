@@ -34,17 +34,17 @@ describe Lissio::Router::Route do
     let(:route) { Lissio::Router::Route }
 
     it "returns false for a non matching route" do
-      route.new('/foo').match('/a/b/c').should be_false
+      route.new('/foo').match('/a/b/c').should be_falsey
     end
 
     it "returns true for a matching route" do
-      route.new('/foo').match('/foo').should be_true
+      route.new('/foo').match('/foo').should be_truthy
     end
 
     it "calls block given to #initialize on matching a route" do
       called = false
       route.new('/foo') { called = true }.match('/foo')
-      called.should be_true
+      called.should be_truthy
     end
 
     it "calls handler with an empty hash for a simple route" do

@@ -79,7 +79,7 @@ class CLI < Thor
 	option :server,  aliases: '-S', type: :string
 	option :port,    aliases: '-p', type: :numeric
 	option :host,                   type: :string
-	option :main,    aliases: '-m', type: :string
+	option :main,    aliases: '-m', type: :string, default: 'app'
 	option :require, aliases: '-r', type: :array, default: []
 	option :use,     aliases: '-u', type: :array, default: []
 	option :path,                   type: :array, default: ['app', 'js', 'opal']

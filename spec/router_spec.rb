@@ -98,11 +98,11 @@ describe Lissio::Router do
 
       router.navigate("/bar")
       router.update
-      called.should be_false
+      called.should be_falsey
 
       router.navigate("/foo")
       router.update
-      called.should be_true
+      called.should be_truthy
     end
   end
 end

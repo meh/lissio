@@ -22,8 +22,10 @@ class Model
 				if as.ancestors.include?(Model)
 					if as.primary && as.primary.as === data
 						return data
-					else
+					elsif Array === data
 						return as.new(*data)
+					else
+						return as.new(data)
 					end
 				end
 			end
@@ -34,6 +36,9 @@ class Model
 
 			when Array === as
 				data.map { |d| coerce(d, as.first) }
+
+			when Hash === as
+				Hash[data.map { |k, v| [coerce(k, as.first.first), coerce(v, as.first.last)] }]
 
 			when as == Boolean
 				!!data

@@ -46,12 +46,11 @@ class Application < Component
 
 	def start
 		render
-
-		@router.update
+		router.update
 	end
 
 	def refresh
-		@router.update
+		router.update
 	end
 
 	element :body

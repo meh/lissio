@@ -107,7 +107,7 @@ class CLI < Thor
 				end
 
 				if index = options[:index]
-					s.index = index
+					s.index_path = index
 				end
 
 				if options[:debug]

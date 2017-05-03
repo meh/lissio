@@ -107,7 +107,7 @@ class Component
 		define_method :render do
 			instance_exec(&block)
 
-			super
+			super()
 		end
 	end
 

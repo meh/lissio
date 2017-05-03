@@ -139,12 +139,12 @@ private
 
 			pattern = Regexp.escape(pattern)
 
-			pattern.scan(NAME) {|name,|
-				@names << name
+			pattern.scan(NAME) {|m|
+				@names << m[0]
 			}
 
-			pattern.scan(SPLAT) {|name,|
-				@names << name
+			pattern.scan(SPLAT) {|m|
+				@names << m[0]
 			}
 
 			pattern = pattern.gsub(NAME, "([^\\/]+)").

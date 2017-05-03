@@ -1,4 +1,4 @@
-require 'opal/sprockets/environment'
+require 'opal-sprockets'
 require 'uglifier'
 require 'forwardable'
 
@@ -47,7 +47,7 @@ class Builder
 	end
 
 	def lissio(source = main)
-		"<script>#{Uglifier.compile(@sprockets[source].to_s + Opal::Processor.load_asset_code(@sprockets, source))}</script>"
+		"<script>#{Uglifier.compile(@sprockets[source].to_s + Opal::Sprockets.load_asset(source, @sprockets))}</script>"
 	end
 end
 

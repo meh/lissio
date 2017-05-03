@@ -1,4 +1,5 @@
 require 'opal'
+require 'opal-sprockets'
 require 'opal/browser'
 
 require 'lissio/server'

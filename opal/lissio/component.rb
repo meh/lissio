@@ -184,14 +184,20 @@ class Component
 		end
 	end
 
-	attr_accessor :parent
-
 	def tag
 		{ name: :div }.merge(self.class.tag || {})
 	end
 
+	def parent
+		@__parent__
+	end
+
+	def parent=(value)
+		@__parent__ = value
+	end
+
 	def element
-		return @element if @element
+		return @__element__ if @__element__
 
 		scope = parent ? parent.element : $document
 		elem  = if elem = self.class.element
@@ -213,7 +219,7 @@ class Component
 			end
 		}
 
-		[self.class.events, @events].compact.each {|events|
+		[self.class.events, @__events__].compact.each {|events|
 			events.each {|name, blocks|
 				blocks.each {|selector, block|
 					if Symbol === block
@@ -229,33 +235,33 @@ class Component
 			}
 		}
 
-		@element = elem
+		@__element__ = elem
 	end
 
 	def on(name, selector = nil, method = nil, &block)
-		if @element
+		if @__element__
 			if block
-				@element.on name, selector do |*args|
+				@__element__.on name, selector do |*args|
 					instance_exec(*args, &block)
 				end
 			elsif method
-				@element.on name, selector do |*args|
+				@__element__.on name, selector do |*args|
 					__send__ method, *args
 				end
 			else
-				@element.on name do |*args|
+				@__element__.on name do |*args|
 					__send__ method, *args
 				end
 			end
 		else
-			@events ||= Hash.new { |h, k| h[k] = [] }
+			@__events__ ||= Hash.new { |h, k| h[k] = [] }
 
 			if block
-				@events[name] << [selector, block]
+				@__events[__name] << [selector, block]
 			elsif method
-				@events[name] << [selector, method]
+				@__events__[name] << [selector, method]
 			else
-				@events[name] << [nil, selector]
+				@__events__[name] << [nil, selector]
 			end
 		end
 	end
@@ -277,7 +283,7 @@ class Component
 	end
 
 	def remove
-		@element.remove if @element
+		@__element__.remove if @__element__
 	end
 
 	alias destroy remove

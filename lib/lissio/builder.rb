@@ -22,32 +22,7 @@ class Builder
 	end
 
 	def build
-		source = if @path
-			unless File.exist?(@path)
-				raise "index does not exist: #{@path}"
-			end
-
-			File.read @path
-		elsif File.exist? 'index.html.erb'
-			File.read 'index.html.erb'
-		else
-			<<-HTML
-				<!DOCTYPE html>
-				<html>
-				<head>
-					<%= lissio %>
-				</head>
-				<body>
-				</body>
-				</html>
-			HTML
-		end
-
-		::ERB.new(source).result binding
-	end
-
-	def lissio(source = main)
-		"<script>#{Uglifier.compile(@sprockets[source].to_s + Opal::Sprockets.load_asset(source, @sprockets))}</script>"
+		Uglifier.compile(@sprockets[@main].to_s + Opal::Sprockets.load_asset(@main, @sprockets))
 	end
 end
 

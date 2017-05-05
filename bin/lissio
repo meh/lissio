@@ -122,10 +122,9 @@ class CLI < Thor
 	option :require, aliases: '-r', type: :array, default: []
 	option :use,     aliases: '-u', type: :array, default: []
 	option :path,                   type: :array, default: ['app', 'js', 'opal']
-	option :index,   aliases: '-i', type: :string
 	option :force,   aliases: '-f', type: :boolean, default: false
 
-	def build(output = 'index.html')
+	def build(output = 'lissio.js')
 		if !options[:force] && File.exists?(output)
 			raise ArgumentError, "'#{output}' already exists"
 		end

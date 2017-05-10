@@ -17,6 +17,7 @@ class Router
 
 	def initialize(options = {}, &block)
 		@routes   = []
+		@missing  = proc { }
 		@options  = options
 		@location = $document.location
 		@initial  = @location.uri
@@ -89,6 +90,10 @@ class Router
 			@routes << route
 		}
 	end
+	
+	def missing(&block)
+		@missing = block
+	end
 
 	def update
 		match path
@@ -119,7 +124,7 @@ class Router
 
 private
 	def match(path)
-		@routes.find {|route|
+		@missing.call unless @routes.find {|route|
 			route.match path
 		}
 	end

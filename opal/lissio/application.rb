@@ -36,7 +36,7 @@ class Application < Component
 	expose :@router
 
 	extend Forwardable
-	def_delegators :@router, :navigate, :route
+	def_delegators :@router, :navigate, :route, :missing
 
 	def initialize
 		super()
